@@ -28,9 +28,10 @@ export default function JobDetail({ slug }: { slug: string }) {
   )
 }
 
-export function getStaticPaths() {
+export function getStaticPaths({ locales }: { locales?: readonly string[] }) {
+  const locs = locales ?? ['de', 'en']
   return {
-    paths: jobs.map((j) => ({ params: { slug: j.slug } })),
+    paths: locs.flatMap((locale) => jobs.map((j) => ({ params: { slug: j.slug }, locale }))),
     fallback: false,
   }
 }

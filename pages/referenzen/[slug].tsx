@@ -332,9 +332,10 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
   )
 }
 
-export function getStaticPaths() {
+export function getStaticPaths({ locales }: { locales?: readonly string[] }) {
+  const locs = locales ?? ['de', 'en']
   return {
-    paths: portfolioCases.map((p) => ({ params: { slug: p.slug } })),
+    paths: locs.flatMap((locale) => portfolioCases.map((p) => ({ params: { slug: p.slug }, locale }))),
     fallback: false,
   }
 }

@@ -58,7 +58,7 @@ export function LeistungenPage() {
                 {tr(
                   locale,
                   'Von Strategie bis Umsetzung – mit Fokus auf Wachstum, Experience und Performance',
-                  'From strategy to delivery — focused on growth, experience, and performance',
+                  'From strategy to delivery — focused on growth, experience and performance',
                 )}
               </h1>
 

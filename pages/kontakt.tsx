@@ -1,13 +1,21 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
 import { Container } from '../components/Container'
 import { SiteHeader } from '../components/SiteHeader'
+import { TurnstileWidget } from '../components/TurnstileWidget'
 import { normalizeLocale, tr } from '../lib/i18n'
 
 export default function Kontakt() {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState<string>('')
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; message?: string; captcha?: string }>({})
+  const [captchaToken, setCaptchaToken] = useState<string>('')
+  const [captchaKey, setCaptchaKey] = useState(0)
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 
   return (
     <>
@@ -70,19 +78,79 @@ export default function Kontakt() {
 
                   <form
                     className="mt-6 grid gap-4 sm:grid-cols-2"
-                    action="mailto:hello@ecommlab.io"
-                    method="post"
-                    encType="text/plain"
+                    onSubmit={async (e) => {
+                      e.preventDefault()
+                      setStatus('sending')
+                      setErrorMsg('')
+                      setFieldErrors({})
+
+                      const form = e.currentTarget
+                      const fd = new FormData(form)
+                      const payload = {
+                        name: String(fd.get('name') ?? ''),
+                        email: String(fd.get('email') ?? ''),
+                        message: String(fd.get('message') ?? ''),
+                        _hp: String(fd.get('_hp') ?? ''),
+                        turnstileToken: captchaToken,
+                      }
+
+                      const nextErrors: typeof fieldErrors = {}
+                      if (!payload.name.trim()) nextErrors.name = tr(locale, 'Pflichtfeld', 'Required')
+                      if (!payload.email.trim()) nextErrors.email = tr(locale, 'Pflichtfeld', 'Required')
+                      if (!payload.message.trim()) nextErrors.message = tr(locale, 'Pflichtfeld', 'Required')
+                      if (!captchaToken) nextErrors.captcha = tr(locale, 'Bitte Captcha ausfüllen', 'Please complete the captcha')
+                      if (Object.keys(nextErrors).length) {
+                        setFieldErrors(nextErrors)
+                        setStatus('idle')
+                        return
+                      }
+
+                      try {
+                        const r = await fetch('/api/contact', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(payload),
+                        })
+                        const json = (await r.json()) as { ok: boolean; error?: string }
+                        if (!r.ok || !json.ok) {
+                          throw new Error(json.error || 'Request failed')
+                        }
+                        form.reset()
+                        setCaptchaToken('')
+                        setCaptchaKey((k) => k + 1)
+                        setStatus('sent')
+                      } catch (err) {
+                        setStatus('error')
+                        setErrorMsg(err instanceof Error ? err.message : 'Unknown error')
+                      }
+                    }}
                   >
+                    <input
+                      name="_hp"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      className="hidden"
+                      aria-hidden="true"
+                      defaultValue=""
+                    />
                     <label className="grid gap-1">
                       <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                         {tr(locale, 'Name', 'Name')}
                       </span>
                       <input
                         name="name"
-                        className="h-11 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500"
+                        required
+                        minLength={2}
+                        aria-invalid={Boolean(fieldErrors.name)}
+                        className={[
+                          'h-11 rounded-xl border bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
+                          fieldErrors.name ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
+                        ].join(' ')}
                         placeholder={tr(locale, 'Max Mustermann', 'Jane Doe')}
                       />
+                      {fieldErrors.name ? (
+                        <div className="text-xs font-semibold text-red-700 dark:text-red-300">{fieldErrors.name}</div>
+                      ) : null}
                     </label>
 
                     <label className="grid gap-1">
@@ -92,9 +160,17 @@ export default function Kontakt() {
                       <input
                         name="email"
                         type="email"
-                        className="h-11 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500"
+                        required
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        className={[
+                          'h-11 rounded-xl border bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
+                          fieldErrors.email ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
+                        ].join(' ')}
                         placeholder={tr(locale, 'name@firma.de', 'name@company.com')}
                       />
+                      {fieldErrors.email ? (
+                        <div className="text-xs font-semibold text-red-700 dark:text-red-300">{fieldErrors.email}</div>
+                      ) : null}
                     </label>
 
                     <label className="grid gap-1 sm:col-span-2">
@@ -104,17 +180,65 @@ export default function Kontakt() {
                       <textarea
                         name="message"
                         rows={6}
-                        className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500"
+                        required
+                        minLength={10}
+                        aria-invalid={Boolean(fieldErrors.message)}
+                        className={[
+                          'rounded-xl border bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
+                          fieldErrors.message ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
+                        ].join(' ')}
                         placeholder={tr(locale, 'Wobei können wir helfen?', 'How can we help?')}
                       />
+                      {fieldErrors.message ? (
+                        <div className="text-xs font-semibold text-red-700 dark:text-red-300">
+                          {fieldErrors.message}
+                        </div>
+                      ) : null}
                     </label>
 
                     <div className="sm:col-span-2">
+                      {siteKey ? (
+                        <>
+                          <TurnstileWidget
+                            key={captchaKey}
+                            siteKey={siteKey}
+                            onToken={(t) => setCaptchaToken(t)}
+                            className="mt-1"
+                          />
+                          {fieldErrors.captcha ? (
+                            <div className="mt-2 text-xs font-semibold text-red-700 dark:text-red-300">
+                              {fieldErrors.captcha}
+                            </div>
+                          ) : null}
+                        </>
+                      ) : (
+                        <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                          {tr(
+                            locale,
+                            'Captcha ist noch nicht konfiguriert (NEXT_PUBLIC_TURNSTILE_SITE_KEY).',
+                            'Captcha is not configured yet (NEXT_PUBLIC_TURNSTILE_SITE_KEY).',
+                          )}
+                        </div>
+                      )}
+
+                      {status === 'sent' ? (
+                        <div className="mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+                          {tr(locale, 'Danke! Deine Nachricht wurde gesendet.', 'Thanks! Your message has been sent.')}
+                        </div>
+                      ) : null}
+                      {status === 'error' ? (
+                        <div className="mb-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
+                          {tr(locale, 'Senden fehlgeschlagen:', 'Sending failed:')} {errorMsg}
+                        </div>
+                      ) : null}
                       <button
                         type="submit"
+                        disabled={status === 'sending'}
                         className="inline-flex h-11 items-center justify-center rounded-full bg-zinc-900 px-5 text-sm font-semibold text-white transition hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 dark:focus-visible:ring-white dark:focus-visible:ring-offset-zinc-950"
                       >
-                        {tr(locale, 'Senden', 'Send')}
+                        {status === 'sending'
+                          ? tr(locale, 'Sende…', 'Sending…')
+                          : tr(locale, 'Senden', 'Send')}
                       </button>
                     </div>
                   </form>
