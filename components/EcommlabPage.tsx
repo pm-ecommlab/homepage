@@ -514,7 +514,8 @@ export function EcommlabPage() {
                   if (!captchaToken) nextErrors.captcha = tr(locale, 'Bitte Captcha ausfüllen', 'Please complete the captcha')
                   if (Object.keys(nextErrors).length) {
                     setContactFieldErrors(nextErrors)
-                    setContactStatus('idle')
+                    setContactError(tr(locale, 'Bitte prüfen Sie die markierten Felder.', 'Please check the highlighted fields.'))
+                    setContactStatus('error')
                     return
                   }
 
@@ -524,8 +525,25 @@ export function EcommlabPage() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(payload),
                     })
-                    const json = (await r.json()) as { ok: boolean; error?: string }
-                    if (!r.ok || !json.ok) throw new Error(json.error || 'Request failed')
+                    const raw = await r.text()
+                    let json: { ok?: boolean; error?: string } | null = null
+                    try {
+                      json = raw ? (JSON.parse(raw) as { ok?: boolean; error?: string }) : null
+                    } catch {
+                      // non-JSON response (often HTML from proxy/redirect)
+                    }
+
+                    if (!r.ok || !json?.ok) {
+                      const looksLikeHtml = raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')
+                      const fallback = looksLikeHtml
+                        ? tr(
+                            locale,
+                            'Server-Antwort war HTML (Proxy/Redirect). Bitte prüfe, ob `/api/contact` wirklich auf die Next.js-App zeigt.',
+                            'Server returned HTML (proxy/redirect). Please verify `/api/contact` routes to the Next.js app.',
+                          )
+                        : raw.slice(0, 200)
+                      throw new Error(json?.error || fallback || 'Request failed')
+                    }
                     form.reset()
                     setCaptchaToken('')
                     setCaptchaKey((k) => k + 1)
@@ -632,16 +650,6 @@ export function EcommlabPage() {
                     </div>
                   )}
 
-                  {contactStatus === 'sent' ? (
-                    <div className="mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
-                      {tr(locale, 'Danke! Ihre Nachricht wurde gesendet.', 'Thanks! Your message has been sent.')}
-                    </div>
-                  ) : null}
-                  {contactStatus === 'error' ? (
-                    <div className="mb-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
-                      {tr(locale, 'Senden fehlgeschlagen:', 'Sending failed:')} {contactError}
-                    </div>
-                  ) : null}
                   <button
                     type="submit"
                     disabled={contactStatus === 'sending'}
@@ -651,6 +659,20 @@ export function EcommlabPage() {
                       ? tr(locale, 'Sende…', 'Sending…')
                       : tr(locale, 'Senden', 'Send')}
                   </button>
+                  {contactStatus === 'sent' ? (
+                    <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+                      {tr(
+                        locale,
+                        'Vielen Dank für Ihre Nachricht! Wir melden uns schnellstmöglich bei Ihnen zurück!',
+                        'Thanks! We will get back to you as soon as possible.',
+                      )}
+                    </div>
+                  ) : null}
+                  {contactStatus === 'error' ? (
+                    <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
+                      {tr(locale, 'Senden fehlgeschlagen:', 'Sending failed:')} {contactError}
+                    </div>
+                  ) : null}
                 </div>
               </form>
             </div>
