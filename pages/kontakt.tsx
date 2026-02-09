@@ -25,8 +25,8 @@ export default function Kontakt() {
           name="description"
           content={tr(
             locale,
-            'Kontaktieren Sie Ecommlab – wir freuen uns auf Ihre Nachricht.',
-            'Contact Ecommlab — we look forward to your message.',
+            'Sie wollen ein neues Projekt starten, in unser Team kommen oder nur „Hi“ sagen? Wir freuen uns auf Ihre Nachricht.',
+            'Want to start a new project, join our team, or just say hi? We look forward to your message.',
           )}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

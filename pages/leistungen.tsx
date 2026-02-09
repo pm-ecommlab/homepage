@@ -1,14 +1,23 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { LeistungenPage } from '../components/LeistungenPage'
+import { normalizeLocale, tr } from '../lib/i18n'
 
 export default function Leistungen() {
+  const router = useRouter()
+  const locale = normalizeLocale(router.locale)
+
   return (
     <>
       <Head>
-        <title>Leistungen – Relaunch</title>
+        <title>{tr(locale, 'Leistungen – Ecommlab', 'Services – Ecommlab')}</title>
         <meta
           name="description"
-          content="Neu aufbereitete Inhalte der ecommlab.io Leistungen-Seite, umgesetzt mit Next.js, TypeScript und Tailwind CSS."
+          content={tr(
+            locale,
+            'Individuell angepasste Lösungen für E-Commerce, Web Development, Online Marketing, SEO und mehr.',
+            'Tailored solutions for e-commerce, web development, online marketing, SEO, and more.',
+          )}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

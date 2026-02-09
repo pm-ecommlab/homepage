@@ -164,8 +164,14 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
   return (
     <>
       <Head>
-        <title>{item.title} – Referenzen – Ecommlab</title>
-        <meta name="description" content={`${item.title} – Case Study & Keyfacts.`} />
+        <title>{item.title} – Ecommlab</title>
+        <meta
+          name="description"
+          content={
+            item.summary?.[locale] ??
+            tr(locale, `${item.title} – Referenzprojekt von Ecommlab.`, `${item.title} — a selected Ecommlab project.`)
+          }
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
