@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+http://localhost:3000/en/referenzen/newoneThis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
@@ -17,6 +17,23 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 [API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+
+## Environment variables
+
+Create a `.env.local` (recommended for secrets) or use `.env.development` / `.env.production`.
+
+### Cookiebot + Google Tag Manager (GTM)
+
+- `NEXT_PUBLIC_SITE_URL`: Public base URL (e.g. `https://new.ecommlab.io`) for canonical/hreflang links
+- `NEXT_PUBLIC_COOKIEBOT_ID`: Cookiebot CBID (domain group ID)
+- `NEXT_PUBLIC_GTM_ID`: Google Tag Manager Container ID (e.g. `GTM-XXXXXXX`)
+
+GTM (and therefore GA4 via GTM) is configured to load **only after Cookiebot consent** for category **Statistics**.
+
+### Contact form (SMTP + Turnstile)
+
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `CONTACT_TO`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
 
 ## Learn More
 

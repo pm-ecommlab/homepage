@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import Script from 'next/script'
 import { useRouter } from 'next/router'
 import { Container } from '../components/Container'
 import { SiteHeader } from '../components/SiteHeader'
@@ -20,6 +21,7 @@ function P({ children }: { children: React.ReactNode }) {
 export default function Datenschutzbestimmungen() {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
+  const cookiebotId = process.env.NEXT_PUBLIC_COOKIEBOT_ID || ''
 
   return (
     <>
@@ -54,6 +56,33 @@ export default function Datenschutzbestimmungen() {
                     'Ecommlab GmbH (“Ecommlab”) values the protection of users’ privacy. This policy explains how we collect and use personal data from visitors of our website.',
                   )}
                 </P>
+
+                <H2>{tr(locale, 'Cookie-Einwilligung', 'Cookie consent')}</H2>
+                <P>
+                  {tr(
+                    locale,
+                    'Hier finden Sie die Cookie-Erklärung mit Details zu eingesetzten Cookies und deren Kategorien.',
+                    'Here you can find the cookie declaration with details about used cookies and their categories.',
+                  )}
+                </P>
+                {cookiebotId ? (
+                  <>
+                    <div id="CookieDeclaration" className="mt-4" />
+                    <Script
+                      id="CookieDeclarationScript"
+                      src={`https://consent.cookiebot.com/${encodeURIComponent(cookiebotId)}/cd.js`}
+                      strategy="afterInteractive"
+                    />
+                  </>
+                ) : (
+                  <P>
+                    {tr(
+                      locale,
+                      'Cookiebot ist noch nicht konfiguriert (NEXT_PUBLIC_COOKIEBOT_ID fehlt).',
+                      'Cookiebot is not configured yet (NEXT_PUBLIC_COOKIEBOT_ID missing).',
+                    )}
+                  </P>
+                )}
 
                 <H2>{tr(locale, 'Zustimmung', 'Consent')}</H2>
                 <P>

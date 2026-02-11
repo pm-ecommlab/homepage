@@ -1,15 +1,52 @@
-import { Html, Head, Main, NextScript } from 'next/document'
-import type { DocumentContext } from 'next/document'
+import Document, { Head, Html, Main, NextScript } from 'next/document'
 
-export default function Document() {
-  return (
-    <Html lang="de">
-      <Head />
-      <body>
-        {/* Theme init: avoid flash before hydration */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+export default class MyDocument extends Document {
+  render() {
+    const cookiebotId = process.env.NEXT_PUBLIC_COOKIEBOT_ID
+    const gtmId = process.env.NEXT_PUBLIC_GTM_ID
+    const locale = this.props.__NEXT_DATA__?.locale === 'en' ? 'en' : 'de'
+
+    return (
+      <Html lang={locale}>
+        <Head>
+          {/* Cookiebot (Consent Management) */}
+          {cookiebotId ? (
+            <script
+              id="Cookiebot"
+              src="https://consent.cookiebot.com/uc.js"
+              data-cbid={cookiebotId}
+              data-blockingmode="auto"
+              async
+              type="text/javascript"
+            />
+          ) : null}
+
+          {/* Google Tag Manager (only after Cookiebot consent: statistics) */}
+          {gtmId ? (
+            <>
+              {/* eslint-disable-next-line @next/next/next-script-for-ga */}
+              <script
+                type="text/plain"
+                data-cookieconsent="statistics"
+                dangerouslySetInnerHTML={{
+                  __html: `
+window.dataLayer = window.dataLayer || [];
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');
+`,
+                }}
+              />
+            </>
+          ) : null}
+        </Head>
+        <body>
+          {/* Theme init: avoid flash before hydration */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
 (function(){
   try {
     var stored = localStorage.getItem('theme');
@@ -20,11 +57,12 @@ export default function Document() {
     else root.classList.remove('dark');
   } catch (e) {}
 })();`,
-          }}
-        />
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  )
+            }}
+          />
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
 }

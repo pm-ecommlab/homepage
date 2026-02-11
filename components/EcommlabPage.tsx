@@ -571,6 +571,19 @@ export function EcommlabPage() {
                     required
                     minLength={2}
                     aria-invalid={Boolean(contactFieldErrors.name)}
+                    onInvalid={(e) => {
+                      const el = e.currentTarget
+                      if (el.validity.valueMissing) {
+                        el.setCustomValidity(tr(locale, 'Bitte Name eingeben.', 'Please enter your name.'))
+                      } else if (el.validity.tooShort) {
+                        el.setCustomValidity(
+                          tr(locale, 'Bitte mindestens 2 Zeichen eingeben.', 'Please enter at least 2 characters.'),
+                        )
+                      } else {
+                        el.setCustomValidity('')
+                      }
+                    }}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
                     className={[
                       'h-11 rounded-xl border bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
                       contactFieldErrors.name ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
@@ -591,6 +604,19 @@ export function EcommlabPage() {
                     type="email"
                     required
                     aria-invalid={Boolean(contactFieldErrors.email)}
+                    onInvalid={(e) => {
+                      const el = e.currentTarget
+                      if (el.validity.valueMissing) {
+                        el.setCustomValidity(tr(locale, 'Bitte E-Mail eingeben.', 'Please enter your email address.'))
+                      } else if (el.validity.typeMismatch) {
+                        el.setCustomValidity(
+                          tr(locale, 'Bitte eine gültige E-Mail eingeben.', 'Please enter a valid email address.'),
+                        )
+                      } else {
+                        el.setCustomValidity('')
+                      }
+                    }}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
                     className={[
                       'h-11 rounded-xl border bg-white px-3 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
                       contactFieldErrors.email ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
@@ -612,6 +638,19 @@ export function EcommlabPage() {
                     required
                     minLength={10}
                     aria-invalid={Boolean(contactFieldErrors.message)}
+                    onInvalid={(e) => {
+                      const el = e.currentTarget
+                      if (el.validity.valueMissing) {
+                        el.setCustomValidity(tr(locale, 'Bitte Nachricht eingeben.', 'Please enter a message.'))
+                      } else if (el.validity.tooShort) {
+                        el.setCustomValidity(
+                          tr(locale, 'Bitte mindestens 10 Zeichen eingeben.', 'Please enter at least 10 characters.'),
+                        )
+                      } else {
+                        el.setCustomValidity('')
+                      }
+                    }}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
                     className={[
                       'rounded-xl border bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-0 focus:border-zinc-400 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-500',
                       contactFieldErrors.message ? 'border-red-300 dark:border-red-900/60' : 'border-zinc-200 dark:border-zinc-800',
