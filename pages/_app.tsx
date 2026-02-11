@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { BackToTopButton } from '../components/BackToTopButton'
+import { SiteFooter } from '../components/SiteFooter'
 
 function stripQueryAndHash(url: string) {
   return url.split('#')[0]?.split('?')[0] || '/'
@@ -40,6 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="alternate" hrefLang="x-default" href={deHref} />
       </Head>
       <Component {...pageProps} />
+      <SiteFooter />
       <BackToTopButton showAfter={350} />
     </>
   )
