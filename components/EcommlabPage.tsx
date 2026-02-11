@@ -301,7 +301,7 @@ export function EcommlabPage() {
                   {tr(locale, 'So setzen wir Ideen um', 'How we deliver')}
                 </p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-                  {tr(locale, 'Unsere Projekte', 'Selected projects')}
+                  {tr(locale, 'Auszug unserer Projekte', 'Selected projects')}
                 </h2>
                 <p className="mt-2 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
                   {tr(

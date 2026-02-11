@@ -49,3 +49,26 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Server scripts (dev/prod start/stop)
+
+On the server, from the project folder:
+
+```bash
+chmod +x scripts/server-start.sh scripts/server-stop.sh
+
+# start dev (default port 3000; always without PM2)
+./scripts/server-start.sh dev
+
+# start prod (default port 3000; runs build before start; uses PM2 if available)
+./scripts/server-start.sh prod
+
+# stop dev/prod
+./scripts/server-stop.sh dev
+./scripts/server-stop.sh prod
+```
+
+Optional overrides:
+
+- `PORT_DEV=3005 ./scripts/server-start.sh dev`
+- `PORT_PROD=3002 ./scripts/server-start.sh prod`
