@@ -15,7 +15,7 @@ APP_NAME="ecommlab-${MODE}"
 PID_DIR="${ROOT_DIR}/.pids"
 PID_FILE="${PID_DIR}/${APP_NAME}.pid"
 
-PORT_DEV="${PORT_DEV:-3000}"
+PORT_DEV="${PORT_DEV:-3001}"
 PORT_PROD="${PORT_PROD:-3000}"
 
 port_in_use() {
@@ -48,6 +48,11 @@ else
 fi
 
 mkdir -p "$PID_DIR"
+
+if [[ "$MODE" == "prod" ]] && command -v pm2 >/dev/null 2>&1; then
+  # Make prod start idempotent: never create duplicate PM2 processes
+  pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
+fi
 
 if port_in_use "$PORT"; then
   echo "ERROR: Port ${PORT} is already in use."

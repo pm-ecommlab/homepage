@@ -7,7 +7,7 @@ import { normalizeLocale, tr } from '../lib/i18n'
 
 const nav = [
   { labelDe: 'Home', labelEn: 'Home', href: '/' },
-  { labelDe: 'Referenzen', labelEn: 'Work', href: '/referenzen' },
+  { labelDe: 'Referenzen', labelEn: 'Cases', href: '/referenzen' },
   { labelDe: 'Leistungen', labelEn: 'Services', href: '/leistungen' },
   { labelDe: 'Karriere', labelEn: 'Careers', href: '/karriere' },
   { labelDe: 'Kontakt', labelEn: 'Contact', href: '/kontakt' },

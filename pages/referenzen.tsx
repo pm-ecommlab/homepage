@@ -10,7 +10,7 @@ export default function Referenzen() {
   return (
     <>
       <Head>
-        <title>{tr(locale, 'REFERENZEN – Ecommlab', 'Work – Ecommlab')}</title>
+        <title>{tr(locale, 'REFERENZEN – Ecommlab', 'Projects – Ecommlab')}</title>
         <meta
           name="description"
           content={tr(

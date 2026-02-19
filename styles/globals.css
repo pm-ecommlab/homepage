@@ -47,6 +47,9 @@ html {
 html,
 body {
   height: 100%;
+  /* Prevent horizontal scroll revealing off-canvas UI on mobile */
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {

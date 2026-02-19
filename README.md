@@ -57,7 +57,7 @@ On the server, from the project folder:
 ```bash
 chmod +x scripts/server-start.sh scripts/server-stop.sh
 
-# start dev (default port 3000; always without PM2)
+# start dev (default port 3001; always without PM2)
 ./scripts/server-start.sh dev
 
 # start prod (default port 3000; runs build before start; uses PM2 if available)
