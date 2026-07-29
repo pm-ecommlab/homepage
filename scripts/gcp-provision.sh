@@ -173,7 +173,7 @@ for role in \
   roles/cloudbuild.builds.editor \
   roles/serviceusage.serviceUsageConsumer \
   roles/run.developer \
-  roles/storage.objectAdmin \
+  roles/storage.admin \
   roles/viewer; do
   grant_project_role "serviceAccount:${DEPLOYER_EMAIL}" "$role"
 done
