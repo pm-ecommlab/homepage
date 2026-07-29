@@ -63,13 +63,22 @@ export function BackToTopButton({ showAfter = 700 }: Props) {
 
   useEffect(() => {
     function getScrollY() {
-      return Math.max(
+      const base = Math.max(
         window.scrollY ?? 0,
         window.pageYOffset ?? 0,
         document.documentElement.scrollTop ?? 0,
         document.body.scrollTop ?? 0,
         (document.scrollingElement as HTMLElement | null)?.scrollTop ?? 0,
       )
+
+      // Fallback: falls ein interner Container scrollt, dessen Position berücksichtigen
+      let maxContainerScroll = 0
+      const nodes = document.querySelectorAll<HTMLElement>('body *')
+      nodes.forEach((el) => {
+        if (el.scrollTop > maxContainerScroll) maxContainerScroll = el.scrollTop
+      })
+
+      return Math.max(base, maxContainerScroll)
     }
 
     function update() {
@@ -78,6 +87,7 @@ export function BackToTopButton({ showAfter = 700 }: Props) {
 
     update()
     window.addEventListener('scroll', update, { passive: true })
+    document.addEventListener('scroll', update, { capture: true, passive: true })
     window.addEventListener('touchmove', update, { passive: true })
     window.addEventListener('resize', update, { passive: true } as AddEventListenerOptions)
     window.addEventListener('orientationchange', update, { passive: true } as AddEventListenerOptions)
@@ -85,6 +95,7 @@ export function BackToTopButton({ showAfter = 700 }: Props) {
 
     return () => {
       window.removeEventListener('scroll', update)
+      document.removeEventListener('scroll', update as EventListener, true)
       window.removeEventListener('touchmove', update)
       window.removeEventListener('resize', update as EventListener)
       window.removeEventListener('orientationchange', update as EventListener)

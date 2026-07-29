@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="de" data-theme="light" data-lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pavel Mihaylov – CTO / E-Commerce</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#475569;
+      --line:rgba(15,23,42,.12); --accent:#2b59ff; --pill:#eef2ff;
+      --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.12);
+    }
+    html[data-theme="dark"]{
+      --bg:#0b0f19; --card:#11182a; --text:#e7ecff;
+      --muted:#a8b3d6; --line:rgba(255,255,255,.12);
+      --accent:#7aa2ff; --pill:#172043;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg); color:var(--text); line-height:1.5;
+    }
+    .wrap{max-width:1100px;margin:auto;padding:20px 16px 48px}
+    a{color:var(--accent);text-decoration:none}
+
+    /* HEADER */
+    header{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:14px;
+      text-align:center;
+    }
+    @media(min-width:900px){
+      header{
+        flex-direction:row;
+        justify-content:space-between;
+        align-items:center;
+        text-align:left;
+      }
+    }
+    .avatar{
+      width:100%;
+      height:auto;
+      border-radius:16px;
+      overflow:hidden;
+      border:2px solid var(--line);
+      background:var(--pill);
+      position:relative;
+    }
+
+    .avatar img{
+      width:100%;
+      height:auto;
+      object-fit:cover;
+      display:block;
+    }
+
+    .avatar-fallback{
+      display:none;
+      position:absolute;
+      inset:0;
+      align-items:center;
+      justify-content:center;
+      font-size:32px;
+      font-weight:800;
+      color:var(--accent);
+      background:var(--pill);
+    }
+
+    @media(min-width:900px){
+      .avatar{
+        width:110px;
+        height:110px;
+        border-radius:50%;
+      }
+      .avatar img{
+        height:100%;
+        object-fit:cover;
+      }
+    }
+    h1{margin:0;font-size:34px}
+    .role{margin:0;color:var(--muted);font-weight:600}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--line);background:var(--card);
+      padding:8px 12px;border-radius:999px;font-weight:600;cursor:pointer
+    }
+
+    /* GRID */
+    .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+    @media(min-width:900px){
+      .grid{grid-template-columns:1.3fr .9fr}
+    }
+
+    /* CARDS */
+    .card{
+      background:var(--card);border:1px solid var(--line);
+      border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)
+    }
+    .section-title{
+      font-size:13px;text-transform:uppercase;letter-spacing:.12em;
+      color:var(--muted);margin-bottom:10px
+    }
+
+    /* EXPERIENCE */
+    .item{
+      border:1px solid var(--line);border-radius:14px;
+      padding:14px;margin-bottom:12px
+    }
+    .item-head{display:flex;justify-content:space-between;flex-wrap:wrap}
+    .item h3{margin:0;font-size:16px}
+    .meta{color:var(--muted);font-size:13px;font-weight:600}
+    ul{padding-left:18px;margin:8px 0 0}
+
+    /* SKILLS */
+    .skill-block{margin-bottom:14px}
+    .skill-label{font-weight:800;margin-bottom:6px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      font-size:12px;font-weight:700;padding:6px 10px;
+      border-radius:999px;background:var(--pill);border:1px solid var(--line)
+    }
+
+    /* LANGUAGE */
+    [data-lang="en"] .lang-de{display:none}
+    [data-lang="de"] .lang-en{display:none}
+
+    @media print{
+      .btn{display:none} body{background:#fff}
+      .card{box-shadow:none}
+    }
+    .header-main{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      width:100%;
+    }
+
+    @media(min-width:900px){
+      .header-main{
+        flex-direction:row;
+        align-items:center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-main">
+      <div class="avatar">
+        <img src="Pavel_Mihaylov.png" alt="Pavel Mihaylov"
+             onerror="this.style.display='none'">
+        <div class="avatar-fallback">PM</div>
+      </div>
+      <div>
+        <h1>Pavel Mihaylov</h1>
+        <p class="role lang-de">CTO · E-Commerce & Plattformarchitektur · Ecommlab GmbH · Sofia</p>
+        <p class="role lang-en">CTO · E-Commerce & Platform Architecture · Ecommlab GmbH · Sofia</p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn" onclick="setLang('de')">🇩🇪 DE</button>
+      <button class="btn" onclick="setLang('en')">🇬🇧 EN</button>
+      <button class="btn" onclick="toggleTheme()">🌓</button>
+      <button class="btn" onclick="window.print()">🖨️ PDF</button>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LEFT -->
+    <main class="card">
+
+      <div class="section-title lang-de">Executive Summary</div>
+      <div class="section-title lang-en">Executive Summary</div>
+
+      <p class="lang-de">
+        <strong>CTO und technischer E-Commerce-Stratege</strong> mit über 15 Jahren Erfahrung
+        im Aufbau, der Skalierung und der Führung komplexer Shop- und Plattformlandschaften.
+        Fokus auf <strong>Architektur, Teamaufbau, Performance, Security</strong> und der
+        Übersetzung von Business-Zielen in nachhaltige technische Lösungen.
+      </p>
+
+      <p class="lang-en">
+        <strong>CTO and technical e-commerce strategist</strong> with more than 15 years of experience
+        in building, scaling and leading complex commerce and platform landscapes.
+        Strong focus on <strong>architecture, team leadership, performance, security</strong>
+        and translating business goals into sustainable technical solutions.
+      </p>
+
+      <div class="section-title lang-de">Berufserfahrung</div>
+      <div class="section-title lang-en">Professional Experience</div>
+
+      <section class="item">
+        <div class="item-head">
+          <div>
+            <h3>Chief Technology Officer (CTO)</h3>
+            <div class="meta">Ecommlab GmbH</div>
+          </div>
+          <div class="meta lang-de">Seit 04/2019</div>
+          <div class="meta lang-en">Since 04/2019</div>
+        </div>
+        <ul class="lang-de">
+          <li>Technische Gesamtverantwortung & Plattformstrategie</li>
+          <li>Aufbau und Führung von Entwicklungsteams</li>
+          <li>Architektur-, Performance- & Security-Entscheidungen</li>
+        </ul>
+        <ul class="lang-en">
+          <li>Overall responsibility for technology and platform strategy</li>
+          <li>Building and leading engineering teams</li>
+          <li>Architecture, performance and security decisions</li>
+        </ul>
+      </section>
+
+      <section class="item">
+        <div class="item-head">
+          <div>
+            <h3>Head of E-Commerce Development</h3>
+            <div class="meta">One Commerce GmbH</div>
+          </div>
+          <div class="meta">12/2011 – 03/2019</div>
+        </div>
+        <ul class="lang-de">
+          <li>Technische Gesamtverantwortung für E-Commerce- und Plattformprojekte</li>
+          <li>Führung, Aufbau und Weiterentwicklung von Entwicklungsteams</li>
+          <li>Ressourcenplanung, Aufwandsschätzungen und Budgetverantwortung</li>
+          <li>Konzeption und Bewertung von System- und Integrationsarchitekturen</li>
+          <li>Enge Zusammenarbeit mit Kunden, Produktmanagement und Geschäftsführung</li>
+          <li>Qualitätssicherung, Performance-Optimierung und Stabilitätsmanagement</li>
+        </ul>
+
+        <ul class="lang-en">
+          <li>Overall technical responsibility for e-commerce and platform projects</li>
+          <li>Leading, building and developing engineering teams</li>
+          <li>Resource planning, effort estimation and budget responsibility</li>
+          <li>Design and evaluation of system and integration architectures</li>
+          <li>Close collaboration with customers, product management and management board</li>
+          <li>Quality assurance, performance optimization and platform stability</li>
+        </ul>
+      </section>
+
+      <section class="item">
+        <div class="item-head">
+          <div>
+            <h3>Manager E-Commerce Development</h3>
+            <div class="meta">One Advertising AG</div>
+          </div>
+          <div class="meta">06/2010 – 11/2011</div>
+          <ul class="lang-de">
+            <li>Technische Projektleitung für E-Commerce- und Portalprojekte</li>
+            <li>Führung und Koordination von Entwicklerteams</li>
+            <li>Erstellung von Aufwandschätzungen, technischen Konzepten und Angeboten</li>
+            <li>Kundenberatung, Presales-Unterstützung und Durchführung von Schulungen</li>
+          </ul>
+
+          <ul class="lang-en">
+            <li>Technical project management for e-commerce and portal projects</li>
+            <li>Leading and coordinating development teams</li>
+            <li>Effort estimation, technical concepts and proposal creation</li>
+            <li>Customer consulting, presales support and technical trainings</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="item">
+        <div class="item-head">
+          <div>
+            <h3>Software Engineer</h3>
+            <div class="meta">One Advertising AG</div>
+          </div>
+          <div class="meta">05/2008 – 05/2010</div>
+          <ul class="lang-de">
+            <li>Entwicklung und Betreuung komplexer Web-Portale und E-Commerce-Shops</li>
+            <li>Implementierung individueller Funktionen und Schnittstellen</li>
+            <li>SEO-, Performance- und Ladezeitoptimierung</li>
+            <li>Anbindung externer Systeme (Payment, Travel, APIs)</li>
+          </ul>
+
+          <ul class="lang-en">
+            <li>Development and maintenance of complex web portals and e-commerce shops</li>
+            <li>Implementation of custom features and integrations</li>
+            <li>SEO, performance and load time optimization</li>
+            <li>Integration of external systems (payment, travel, APIs)</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="section-title lang-de">Hochschulausbildung</div>
+      <div class="section-title lang-en">Education</div>
+
+      <section class="item">
+        <div class="item-head">
+          <div>
+            <h3>Technische Universität München</h3>
+            <div class="meta lang-de">Informatik · Diplom Informatiker</div>
+            <div class="meta lang-en">Computer Science · Diploma (Diplom-Informatiker)</div>
+          </div>
+          <div class="meta">04/2005 – 06/2010</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- RIGHT -->
+    <aside class="card">
+
+      <div class="section-title lang-de">Kontakt</div>
+      <div class="section-title lang-en">Contact</div>
+
+      <div class="skill-block">
+        <div class="chips">
+          <span class="chip">📍 Tintyava 124, 1172 Sofia</span>
+          <span class="chip"><a href="tel:+4915155633474">📞 +49 151 55633474</a></span>
+          <span class="chip"><a href="tel:+359885931909">📞 +359 885 931909</a></span>
+          <span class="chip"><a href="mailto:pm@ecommlab.io">✉️ pm@ecommlab.io</a></span>
+        </div>
+      </div>
+
+
+      <div class="skill-block">
+        <div class="skill-label">Leadership & Architecture</div>
+        <div class="chips">
+          <span class="chip">CTO Leadership</span><span class="chip">System Architecture</span>
+          <span class="chip">Team Building</span><span class="chip">Scalability</span>
+          <span class="chip">Performance</span><span class="chip">Security</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Development</div>
+        <div class="chips">
+          <span class="chip">Java</span>
+          <span class="chip">JavaScript</span>
+          <span class="chip">Angular</span><span class="chip">Next.js</span><span class="chip">Vite</span>
+          <span class="chip">SQL</span>
+          <span class="chip">HTML5</span>
+          <span class="chip">CSS3</span>
+          <span class="chip">C++</span>
+          <span class="chip">XML</span>
+          <span class="chip">Unit Testing</span>
+          <span class="chip">TDD</span>
+          <span class="chip">oCaml</span>
+          <span class="chip">Perl</span>
+          <span class="chip">VBS</span>
+          <span class="chip">C#</span>
+          <span class="chip">Knockout.js</span>
+          <span class="chip">Liquid</span>
+          <span class="chip">Shopify APIs</span>
+          <span class="chip">Webhooks</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">LLM / AI Fine-Tuning & Data</div>
+        <div class="chips">
+          <span class="chip">Vector Databases</span>
+          <span class="chip">Embeddings</span>
+          <span class="chip">RAG</span>
+          <span class="chip">Prompt Engineering</span>
+          <span class="chip">Model Fine-Tuning</span>
+          <span class="chip">Inference Optimization</span>
+          <span class="chip">Data Labeling</span>
+          <span class="chip">Evaluation Pipelines</span>
+          <span class="chip">LLM APIs</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Frameworks & Web</div>
+        <div class="chips">
+          <span class="chip">Zend</span>
+          <span class="chip">Symfony</span>
+          <span class="chip">Spring</span>
+          <span class="chip">Hibernate</span>
+          <span class="chip">Bootstrap</span>
+          <span class="chip">LESS</span>
+          <span class="chip">SASS</span>
+          <span class="chip">jQuery</span>
+          <span class="chip">Ajax</span>
+          <span class="chip">LAMP</span>
+          <span class="chip">Twig</span>
+          <span class="chip">Smarty</span>
+          <span class="chip">Doctrine</span>
+          <span class="chip">REST API</span>
+          <span class="chip">GraphQL</span>
+          <span class="chip">Composer</span>
+          <span class="chip">Webpack</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Shop Software</div>
+        <div class="chips">
+          <span class="chip">Shopify</span><span class="chip">Shopware</span>
+          <span class="chip">Magento</span><span class="chip">OXID</span>
+          <span class="chip">WooCommerce</span><span class="chip">PrestaShop</span>
+          <span class="chip">Hybris</span>
+          <span class="chip">Shopware 5</span>
+          <span class="chip">Shopware 6</span>
+          <span class="chip">Shopware Plugins</span>
+          <span class="chip">Magento 2</span>
+          <span class="chip">Magento Extensions</span>
+          <span class="chip">EAV</span>
+          <span class="chip">PWA Studio</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Shopify Ecosystem</div>
+        <div class="chips">
+          <span class="chip">Shopify Plus</span>
+          <span class="chip">Custom Apps</span>
+          <span class="chip">Private Apps</span>
+          <span class="chip">App Store Publishing</span>
+          <span class="chip">Checkout Customization</span>
+          <span class="chip">Theme Development</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Databases</div>
+        <div class="chips">
+          <span class="chip">MySQL</span><span class="chip">Oracle</span><span class="chip">DB2</span>
+          <span class="chip">MariaDB</span>
+          <span class="chip">PostgreSQL</span>
+          <span class="chip">Redis</span>
+          <span class="chip">Elasticsearch</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Ops & Systems</div>
+        <div class="chips">
+          <span class="chip">Linux</span>
+          <span class="chip">macOS</span>
+          <span class="chip">Windows</span>
+          <span class="chip">Nginx</span>
+          <span class="chip">Apache</span>
+          <span class="chip">Varnish</span>
+          <span class="chip">CDN</span>
+          <span class="chip">VirtualBox</span>
+          <span class="chip">Vagrant</span>
+          <span class="chip">Docker</span>
+          <span class="chip">DDEV</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <div class="skill-label">Tools</div>
+        <div class="chips">
+          <span class="chip">Git</span><span class="chip">Jira</span><span class="chip">Confluence</span>
+          <span class="chip">Cursor</span><span class="chip">ChatGPT</span><span class="chip">ClaudeCode</span>
+        </div>
+      </div>
+
+      <div class="section-title lang-de">Soft Skills</div>
+      <div class="section-title lang-en">Soft Skills</div>
+
+      <div class="skill-block lang-de">
+        <div class="chips">
+          <span class="chip">Strategisches Denken</span>
+          <span class="chip">Technologische Entscheidungsfähigkeit</span>
+          <span class="chip">Führung & Skalierung von Entwicklungsteams</span>
+          <span class="chip">Architektur- & Systemdenken</span>
+          <span class="chip">Kommunikationsstärke auf Management- & Tech-Ebene</span>
+          <span class="chip">Stakeholder- & Business-Orientierung</span>
+          <span class="chip">Problemlösung auf Systemebene</span>
+          <span class="chip">Hands-on Mentalität</span>
+          <span class="chip">Qualitäts- & Verantwortungsbewusstsein</span>
+          <span class="chip">Change- & Transformationskompetenz</span>
+        </div>
+      </div>
+      <div class="skill-block lang-en">
+        <div class="chips">
+          <span class="chip">Strategic thinking</span>
+          <span class="chip">Technology-driven decision making</span>
+          <span class="chip">Leadership & scaling of engineering teams</span>
+          <span class="chip">Architecture & systems thinking</span>
+          <span class="chip">Strong communication across management & tech</span>
+          <span class="chip">Stakeholder & business orientation</span>
+          <span class="chip">System-level problem solving</span>
+          <span class="chip">Hands-on mentality</span>
+          <span class="chip">Quality & ownership mindset</span>
+          <span class="chip">Change & transformation leadership</span>
+        </div>
+      </div>
+
+      <div class="section-title lang-de">Sprachen</div>
+      <div class="section-title lang-en">Languages</div>
+
+      <div class="skill-block lang-de">
+        <div class="chips">
+          <span class="chip">Deutsch – Verhandlungssicher</span>
+          <span class="chip">Englisch – Sehr gut in Wort und Schrift</span>
+          <span class="chip">Bulgarisch – Muttersprache</span>
+        </div>
+      </div>
+
+      <div class="skill-block lang-en">
+        <div class="chips">
+          <span class="chip">German – Fluent</span>
+          <span class="chip">English – Very good written and spoken</span>
+          <span class="chip">Bulgarian – Native</span>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<script>
+  function setLang(lang){
+    document.documentElement.dataset.lang = lang;
+  }
+  function toggleTheme(){
+    document.documentElement.dataset.theme =
+            document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  }
+</script>
+
+</body>
+</html>

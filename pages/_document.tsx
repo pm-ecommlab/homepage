@@ -9,6 +9,12 @@ export default class MyDocument extends Document {
     return (
       <Html lang={locale}>
         <Head>
+          <script
+            src="https://monitor.ecommlab.io/api/rum/script/rum_fc34c67850e5493dad8b9776e5ff42b1"
+            async
+            defer
+          />
+
           {/* Cookiebot (Consent Management) */}
           {cookiebotId ? (
             <script

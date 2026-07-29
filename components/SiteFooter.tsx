@@ -15,12 +15,20 @@ export function SiteFooter() {
             ECOMMLAB GmbH © {new Date().getFullYear()}
           </p>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-            <Link className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white" href="/impressum">
+            <Link className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white" href="/impressum" scroll={true}>
               {tr(locale, 'Impressum', 'Legal notice')}
             </Link>
             <Link
               className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              href="/nutzungsbedingungen"
+              scroll={true}
+            >
+              {tr(locale, 'AGBs', 'Terms')}
+            </Link>
+            <Link
+              className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               href="/datenschutzbestimmungen"
+              scroll={true}
             >
               {tr(locale, 'Datenschutz', 'Privacy')}
             </Link>

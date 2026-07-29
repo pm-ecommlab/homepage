@@ -18,9 +18,15 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
+## GCP deployment
+
+Production deploys to Google Cloud (`ecommlab-homepage`) via GitHub Actions →
+Cloud Build → Cloud Run. See [docs/deployment-gcp.md](docs/deployment-gcp.md).
+
 ## Environment variables
 
 Create a `.env.local` (recommended for secrets) or use `.env.development` / `.env.production`.
+On GCP, runtime secrets live in Secret Manager (not in the image).
 
 ### Cookiebot + Google Tag Manager (GTM)
 

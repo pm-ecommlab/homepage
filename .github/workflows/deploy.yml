@@ -1,0 +1,85 @@
+name: Deploy
+
+# Branch -> environment:
+#   main -> prod
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - ".gitignore"
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for Workload Identity Federation
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve environment
+        id: env
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            main) ENV=prod ;;
+            *)
+              if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+                ENV=prod
+              else
+                echo "::error::branch ${GITHUB_REF_NAME} is not mapped to an environment"
+                exit 1
+              fi
+              ;;
+          esac
+          set -a; source "deploy/environments/${ENV}.env"; set +a
+          if [ "${PROJECT_NUMBER}" = "CHANGEME_RUN_PROVISION" ] || [ -z "${PROJECT_NUMBER}" ]; then
+            echo "::error::${ENV}.env has no PROJECT_NUMBER — run scripts/gcp-provision.sh ${ENV} --write-config"
+            exit 1
+          fi
+          {
+            echo "env_name=${ENV}"
+            echo "project_id=${PROJECT_ID}"
+            echo "region=${REGION}"
+            echo "repo=${REPO}"
+            echo "web_service=${WEB_SERVICE}"
+            echo "site_url=${NEXT_PUBLIC_SITE_URL}"
+            echo "cookiebot_id=${NEXT_PUBLIC_COOKIEBOT_ID}"
+            echo "gtm_id=${NEXT_PUBLIC_GTM_ID}"
+            echo "turnstile_site_key=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}"
+            echo "wif_provider=projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL}/providers/${WIF_PROVIDER}"
+            echo "deployer_sa=${DEPLOYER_SA}@${PROJECT_ID}.iam.gserviceaccount.com"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ steps.env.outputs.wif_provider }}
+          service_account: ${{ steps.env.outputs.deployer_sa }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ steps.env.outputs.project_id }}
+
+      - name: Build & deploy via Cloud Build
+        run: |
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --substitutions=COMMIT_SHA=${GITHUB_SHA::12},_REGION=${{ steps.env.outputs.region }},_REPO=${{ steps.env.outputs.repo }},_SERVICE=${{ steps.env.outputs.web_service }},_NEXT_PUBLIC_SITE_URL=${{ steps.env.outputs.site_url }},_NEXT_PUBLIC_COOKIEBOT_ID=${{ steps.env.outputs.cookiebot_id }},_NEXT_PUBLIC_GTM_ID=${{ steps.env.outputs.gtm_id }},_NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ steps.env.outputs.turnstile_site_key }} \
+            .
+
+      - name: Print service URL
+        run: |
+          URL=$(gcloud run services describe "${{ steps.env.outputs.web_service }}" \
+            --region "${{ steps.env.outputs.region }}" --format 'value(status.url)')
+          echo "Deployed: ${URL}"
+          echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Environment: \`${{ steps.env.outputs.env_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Service: \`${{ steps.env.outputs.web_service }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: ${URL}" >> "$GITHUB_STEP_SUMMARY"

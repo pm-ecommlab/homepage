@@ -20,14 +20,10 @@ function stripLocalePrefix(path: string) {
 }
 
 function enFromDePath(dePath: string) {
-  if (dePath === '/referenzen') return '/en/projects'
-  if (dePath.startsWith('/referenzen/')) return `/en/projects${dePath.slice('/referenzen'.length)}`
   return dePath === '/' ? '/en' : `/en${dePath}`
 }
 
 function deFromEnPath(enPathWithoutLocale: string) {
-  if (enPathWithoutLocale === '/projects') return '/referenzen'
-  if (enPathWithoutLocale.startsWith('/projects/')) return `/referenzen${enPathWithoutLocale.slice('/projects'.length)}`
   return enPathWithoutLocale
 }
 

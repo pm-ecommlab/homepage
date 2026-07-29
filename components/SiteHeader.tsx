@@ -9,6 +9,7 @@ const nav = [
   { labelDe: 'Home', labelEn: 'Home', href: '/' },
   { labelDe: 'Referenzen', labelEn: 'Cases', href: '/referenzen' },
   { labelDe: 'Leistungen', labelEn: 'Services', href: '/leistungen' },
+  { labelDe: 'Team', labelEn: 'Team', href: '/team' },
   { labelDe: 'Karriere', labelEn: 'Careers', href: '/karriere' },
   { labelDe: 'Kontakt', labelEn: 'Contact', href: '/kontakt' },
 ] as const

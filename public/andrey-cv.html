@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="de" data-theme="light" data-lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Andrey Cekovski – CEO / E-Commerce</title>
+
+    <style>
+        :root{
+            --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#475569;
+            --line:rgba(15,23,42,.12); --accent:#2b59ff; --pill:#eef2ff;
+            --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.12);
+        }
+        html[data-theme="dark"]{
+            --bg:#0b0f19; --card:#11182a; --text:#e7ecff;
+            --muted:#a8b3d6; --line:rgba(255,255,255,.12);
+            --accent:#7aa2ff; --pill:#172043;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+            background:var(--bg);color:var(--text);line-height:1.5;
+        }
+        .wrap{max-width:1100px;margin:auto;padding:20px 16px 48px}
+header{
+            display:flex;
+            flex-direction:column;
+            align-items:stretch;
+            gap:14px;
+            text-align:center;
+        }
+
+.header-main{
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+            width:100%;
+        }
+
+        @media(min-width:900px){
+            .header-main{
+                flex-direction:row;
+                align-items:center;
+            }
+        }
+.avatar{
+            width:100%;
+            height:auto;
+            border-radius:16px;
+            overflow:hidden;
+            border:2px solid var(--line);
+            background:var(--pill);
+            position:relative;
+        }
+        .avatar img{
+            width:100%;
+            height:auto;
+            object-fit:cover;
+            display:block;
+        }
+        .avatar-fallback{
+            display:none;
+            position:absolute;
+            inset:0;
+            align-items:center;
+            justify-content:center;
+            font-size:32px;
+            font-weight:800;
+            color:var(--accent);
+            background:var(--pill);
+        }
+        @media(min-width:900px){
+            header{
+                flex-direction:row;
+                justify-content:space-between;
+                align-items:center;
+                text-align:left;
+            }
+
+            .avatar{
+                width:110px;
+                height:110px;
+                min-width:110px;
+                max-width:110px;
+                border-radius:50%;
+                overflow:hidden;
+            }
+
+            .avatar img{
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                display:block;
+            }
+        }
+        h1{margin:0;font-size:34px}
+        .role{margin:0;color:var(--muted);font-weight:600}
+        .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+        .btn{border:1px solid var(--line);background:var(--card);padding:8px 12px;border-radius:999px;font-weight:600;cursor:pointer}
+        .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+        @media(min-width:900px){.grid{grid-template-columns:1.3fr .9fr}}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+        .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+        .item{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+        .item-head{display:flex;justify-content:space-between;flex-wrap:wrap}
+        .meta{color:var(--muted);font-size:13px;font-weight:600}
+        .skill-block{margin-bottom:14px}
+        .skill-label{font-weight:800;margin-bottom:6px}
+        .chips{display:flex;flex-wrap:wrap;gap:8px}
+        .chip{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--pill);border:1px solid var(--line)}
+        [data-lang="en"] .lang-de{display:none}
+        [data-lang="de"] .lang-en{display:none}
+        @media print{.btn{display:none}body{background:#fff}.card{box-shadow:none}}
+    </style>
+</head>
+
+<body>
+<div class="wrap">
+
+    <header>
+        <div class="header-main">
+            <div class="avatar">
+                <img src="andrey.jpeg" alt="Andrey Cekovski"
+                     onerror="this.style.display='none'">
+                <div class="avatar-fallback">AC</div>
+            </div>
+            <div>
+            <h1>Andrey Cekovski</h1>
+            <p class="role lang-de">CEO · E-Commerce & Digital Platforms · Ecommlab GmbH</p>
+            <p class="role lang-en">CEO · E-Commerce & Digital Platforms · Ecommlab GmbH</p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn" onclick="setLang('de')">🇩🇪 DE</button>
+            <button class="btn" onclick="setLang('en')">🇬🇧 EN</button>
+            <button class="btn" onclick="toggleTheme()">🌓</button>
+            <button class="btn" onclick="window.print()">🖨️ PDF</button>
+        </div>
+    </header>
+
+    <div class="grid">
+
+        <!-- LEFT -->
+        <main class="card">
+
+            <div class="section-title">Executive Summary</div>
+
+            <p class="lang-de">
+                <strong>CEO mit technologischem Fundament</strong> und über 15 Jahren Erfahrung
+                im Aufbau, der Skalierung und strategischen Führung digitaler Geschäftsmodelle.
+                Schwerpunkt auf <strong>E-Commerce-Plattformen, Organisationsentwicklung,
+                Technologie- & Wachstumsstrategie</strong>.
+            </p>
+
+            <p class="lang-en">
+                <strong>CEO with a strong technical background</strong> and more than 15 years of experience
+                in building, scaling and strategically leading digital business models.
+                Focused on <strong>e-commerce platforms, organizational development,
+                technology and growth strategy</strong>.
+            </p>
+
+            <div class="section-title lang-de">Berufserfahrung</div>
+            <div class="section-title lang-en">Professional Experience</div>
+
+            <section class="item">
+              <div class="item-head">
+                <div>
+                  <h3>Chief Executive Officer (CEO)</h3>
+                  <div class="meta">Ecommlab GmbH</div>
+                </div>
+                <div class="meta lang-de">Aktuell</div>
+                <div class="meta lang-en">Current</div>
+              </div>
+            </section>
+
+            <section class="item">
+              <div class="item-head">
+                <div>
+                  <h3>Chief Technology Officer (CTO)</h3>
+                  <div class="meta">One Advertising AG, München</div>
+                </div>
+                <div class="meta">08/2013 – heute</div>
+              </div>
+
+              <ul class="lang-de">
+                <li>Mitglied der erweiterten Geschäftsführung</li>
+                <li>Verantwortlich für den technologischen Fortschritt des Unternehmens</li>
+                <li>Mitverantwortlich für die strategische Weiterentwicklung des Unternehmens</li>
+                <li>Leitung der technischen Abteilung</li>
+                <li>Mitverantwortlich für den SEO Bereich und die strategische Weiterentwicklung zusammen mit Vorstand Search und Head of SEO</li>
+                <li>Budget- und Kosten-Controlling im SEO Bereich</li>
+              </ul>
+
+              <ul class="lang-en">
+                <li>Member of the extended management board</li>
+                <li>Responsible for the company’s technological advancement</li>
+                <li>Co-responsible for the strategic development of the company</li>
+                <li>Head of the technical department</li>
+                <li>Co-responsible for SEO strategy together with Board Search and Head of SEO</li>
+                <li>Budget and cost controlling in the SEO department</li>
+              </ul>
+            </section>
+
+            <section class="item">
+              <div class="item-head">
+                <div>
+                  <h3>Head of SEO</h3>
+                  <div class="meta">One Advertising AG, München</div>
+                </div>
+                <div class="meta">01/2012 – 07/2013</div>
+              </div>
+
+              <ul class="lang-de">
+                <li>Leitung der SEO Abteilung</li>
+                <li>Verantwortlich für Projektmanagement und Weiterentwicklung der SEO-Projekte</li>
+                <li>Mitverantwortlich für die Neukunden-Gewinnung im SEO Bereich</li>
+                <li>Budget- und Kosten-Controlling im SEO Bereich</li>
+                <li>Projektmanagement der SEO-Projekte HRS, Thomas Cook / Neckermann Reisen und PayPal</li>
+              </ul>
+
+              <ul class="lang-en">
+                <li>Head of the SEO department</li>
+                <li>Responsible for project management and development of SEO projects</li>
+                <li>Co-responsible for acquiring new SEO clients</li>
+                <li>Budget and cost controlling in the SEO department</li>
+                <li>Project management for SEO projects incl. HRS, Thomas Cook / Neckermann Reisen and PayPal</li>
+              </ul>
+            </section>
+
+            <section class="item">
+              <div class="item-head">
+                <div>
+                  <h3>Manager SEO Development</h3>
+                  <div class="meta">One Advertising AG, München</div>
+                </div>
+                <div class="meta">12/2010 – 12/2011</div>
+              </div>
+
+              <ul class="lang-de">
+                <li>Management und Weiterentwicklung diverser SEO-Projekte</li>
+                <li>Verantwortlich für SEO-Projekte u. a. für Thomas Cook, Neckermann Reisen, Versatel, Bucher Reisen</li>
+                <li>Technische Umsetzung von SEO-Maßnahmen (One CMS)</li>
+              </ul>
+
+              <ul class="lang-en">
+                <li>Management and development of various SEO projects</li>
+                <li>Responsible for SEO projects for clients such as Thomas Cook, Neckermann Reisen, Versatel and Bucher Reisen</li>
+                <li>Technical implementation of SEO measures (One CMS)</li>
+              </ul>
+            </section>
+
+
+            <section class="item">
+              <div class="item-head">
+                <div>
+                  <h3>Software Engineer</h3>
+                  <div class="meta">One Advertising AG, München</div>
+                </div>
+                <div class="meta">03/2006 – 11/2010</div>
+              </div>
+
+              <ul class="lang-de">
+                <li>Entwicklung eines internen Website-Tracking-Systems mit Web-Interface</li>
+                <li>Entwicklung eines internen SEM-Kampagnenmanagement-Systems</li>
+                <li>Strukturierung und Programmierung von Webseiten und SEO-Projekten (TYPO3 / One CMS)</li>
+                <li>Programmierung von Online-Shops auf Basis der E-Commerce-Plattform OXID</li>
+                <li>Datenbankdesign und -entwicklung (MySQL)</li>
+                <li>Serveradministration, Webserver- und Datenbankkonfiguration, Backups</li>
+              </ul>
+
+              <ul class="lang-en">
+                <li>Development of an internal website tracking system with web interface</li>
+                <li>Development of an internal SEM campaign management system</li>
+                <li>Structuring and development of websites and SEO projects (TYPO3 / One CMS)</li>
+                <li>Development of online shops based on the OXID e-commerce platform</li>
+                <li>Database design and development (MySQL)</li>
+                <li>Server administration, web server and database configuration, backups</li>
+              </ul>
+            </section>
+            <div class="section-title lang-de">Hochschulausbildung</div>
+            <div class="section-title lang-en">Education</div>
+
+            <section class="item">
+                <div class="item-head">
+                    <div>
+                        <h3>Technische Universität München</h3>
+                        <div class="meta lang-de">Informatik · Diplom Informatiker</div>
+                        <div class="meta lang-en">Computer Science · Diploma (Diplom-Informatiker)</div>
+                    </div>
+                    <div class="meta">10/2004 – 12/2010</div>
+                </div>
+            </section>
+
+
+        </main>
+
+        <!-- RIGHT -->
+        <aside class="card">
+
+            <div class="section-title lang-de">Kontakt</div>
+            <div class="section-title lang-en">Contact</div>
+
+            <div class="skill-block">
+                <div class="chips">
+                    <span class="chip">📍 Klothildenstr. 27, 81827 München</span>
+                    <span class="chip"><a href="tel:+4915155001133">📞 +49 (0) 151 55001133</a></span>
+                    <span class="chip"><a href="mailto:ac@ecommlab.io">✉️ ac@ecommlab.io</a></span>
+                </div>
+            </div>
+
+            <div class="section-title lang-de">Kompetenzen</div>
+            <div class="section-title lang-en">Competencies</div>
+
+            <div class="skill-block">
+                <div class="skill-label">Executive & Strategy</div>
+                <div class="chips">
+                    <span class="chip">CEO Leadership</span>
+                    <span class="chip">Business Strategy</span>
+                    <span class="chip">Organizational Development</span>
+                    <span class="chip">Growth Strategy</span>
+                    <span class="chip">Stakeholder Management</span>
+                </div>
+            </div>
+
+            <div class="skill-block">
+                <div class="skill-label">E-Commerce Platforms</div>
+                <div class="chips">
+                    <span class="chip">Shopware</span>
+                    <span class="chip">Magento</span>
+                    <span class="chip">Shopify</span>
+                    <span class="chip">Hybris</span>
+                    <span class="chip">OXID</span>
+                    <span class="chip">Shopware 5</span>
+                    <span class="chip">Shopware 6</span>
+                    <span class="chip">Shopware Plugin Development</span>
+                    <span class="chip">Magento 2</span>
+                    <span class="chip">Magento Extensions</span>
+                    <span class="chip">EAV</span>
+                    <span class="chip">PWA Studio</span>
+                </div>
+            </div>
+
+            <div class="skill-block">
+                <div class="skill-label">Technology Background</div>
+                <div class="chips">
+                    <span class="chip">PHP</span>
+                    <span class="chip">Java</span>
+                    <span class="chip">JavaScript</span>
+                    <span class="chip">APIs</span>
+                    <span class="chip">System Architecture</span>
+                    <span class="chip">Platform Architecture</span>
+                    <span class="chip">Scalable Systems</span>
+                    <span class="chip">Integration Architecture</span>
+                    <span class="chip">API Design</span>
+                    <span class="chip">Performance Optimization</span>
+                    <span class="chip">Security Concepts</span>
+                </div>
+            </div>
+
+            <div class="skill-block">
+              <div class="skill-label">Architecture & Commerce Systems</div>
+              <div class="chips">
+                <span class="chip">System Architecture</span>
+                <span class="chip">Commerce Platforms</span>
+                <span class="chip">Headless Commerce</span>
+                <span class="chip">Microservices</span>
+                <span class="chip">API-First Design</span>
+                <span class="chip">Integration Patterns</span>
+              </div>
+            </div>
+
+            <div class="skill-block">
+                <div class="skill-label lang-de">Sprachen</div>
+                <div class="skill-label lang-en">Languages</div>
+                <div class="chips">
+                    <span class="chip">Deutsch – Fließend</span>
+                    <span class="chip">Englisch – Sehr gut</span>
+                    <span class="chip">Bulgarisch – Muttersprache</span>
+                </div>
+            </div>
+
+            <div class="section-title lang-de">Soft Skills</div>
+            <div class="section-title lang-en">Soft Skills</div>
+
+            <div class="skill-block lang-de">
+              <div class="chips">
+                <span class="chip">Strategisches Denken</span>
+                <span class="chip">Unternehmerische Entscheidungsfähigkeit</span>
+                <span class="chip">Führung & Motivation von Teams</span>
+                <span class="chip">Kommunikationsstärke</span>
+                <span class="chip">Stakeholder- & Kundenorientierung</span>
+                <span class="chip">Konflikt- & Problemlösungskompetenz</span>
+                <span class="chip">Hands-on Mentalität</span>
+                <span class="chip">Hohe Verantwortungsbereitschaft</span>
+                <span class="chip">Analytisches Denken</span>
+                <span class="chip">Change- & Transformationskompetenz</span>
+              </div>
+            </div>
+
+            <div class="skill-block lang-en">
+              <div class="chips">
+                <span class="chip">Strategic thinking</span>
+                <span class="chip">Entrepreneurial decision-making</span>
+                <span class="chip">Leadership & team motivation</span>
+                <span class="chip">Strong communication skills</span>
+                <span class="chip">Stakeholder & customer focus</span>
+                <span class="chip">Conflict & problem-solving skills</span>
+                <span class="chip">Hands-on mentality</span>
+                <span class="chip">High sense of responsibility</span>
+                <span class="chip">Analytical thinking</span>
+                <span class="chip">Change & transformation management</span>
+              </div>
+            </div>
+
+        </aside>
+
+    </div>
+</div>
+
+<script>
+    function setLang(lang){document.documentElement.dataset.lang = lang;}
+    function toggleTheme(){
+        document.documentElement.dataset.theme =
+            document.documentElement.dataset.theme==='dark'?'light':'dark';
+    }
+</script>
+
+</body>
+</html>
