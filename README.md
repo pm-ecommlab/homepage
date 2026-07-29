@@ -20,8 +20,11 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 
 ## GCP deployment
 
-Production deploys to Google Cloud (`ecommlab-homepage`) via GitHub Actions →
-Cloud Build → Cloud Run. See [docs/deployment-gcp.md](docs/deployment-gcp.md).
+Production traffic stays on **ecommlab-new** for now. GCP is ready as a
+standby target.
+
+Deploy is **manual only**: GitHub Actions → **Deploy** → choose target
+`ecommlab-new` (default) or `gcloud`. See [docs/deployment-gcp.md](docs/deployment-gcp.md).
 
 ## Environment variables
 

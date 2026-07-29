@@ -1,10 +1,16 @@
 # GCP Deployment — ecommlab Homepage
 
-Deployment pattern adapted from `clineca-new`: **GitHub Actions (OIDC/WIF) →
-Cloud Build → Artifact Registry → Cloud Run**, with idempotent Bash
-provisioning. No Terraform. No Cloud SQL (static marketing site + contact API).
+**Live-Traffic bleibt vorerst auf `ecommlab-new`.** GCP (Cloud Run + optional LB)
+ist provisioniert und bereit, aber DNS zeigt noch nicht darauf.
 
-## Architecture
+Deploy läuft **nur manuell** über GitHub Actions → **Deploy** → Target wählen:
+
+| Target | Ziel |
+| ------ | ---- |
+| `ecommlab-new` (Default) | SSH/rsync → `/var/www/ecommlab-relaunch`, PM2 `ecommlab-prod` |
+| `gcloud` | Cloud Build → Artifact Registry → Cloud Run |
+
+## Architecture (GCP, standby)
 
 ```
 Browser ──► (optional) Global HTTPS LB ──► ecommlab-web (Cloud Run, Next.js)
@@ -21,18 +27,29 @@ Browser ──► (optional) Global HTTPS LB ──► ecommlab-web (Cloud Run, 
 | Artifact Registry | `ecommlab-docker` |
 | Auth to GCP from CI | Workload Identity Federation (`github` / `github-oidc`) |
 | Deployer SA | `github-deployer@ecommlab-homepage.iam.gserviceaccount.com` |
+| Standby LB IP | `8.233.8.74` (noch **nicht** in Cloudflare setzen) |
 
 ## Environments
 
-| Env  | Branch | Config |
-| ---- | ------ | ------ |
-| prod | `main` | `deploy/environments/prod.env` |
+| Env  | Config |
+| ---- | ------ |
+| prod | `deploy/environments/prod.env` |
 
 `*.env` files are the single source of truth for project id, region, service
-names and WIF paths. They are **not** secret (except you should not put
-SMTP passwords there). Runtime secrets live in Secret Manager.
+names and WIF paths. They are **not** secret. Runtime secrets live in Secret Manager.
 
-## One-time setup
+## GitHub Secrets for ecommlab-new
+
+| Secret | Beispiel |
+| ------ | -------- |
+| `ECOMMLAB_NEW_HOST` | Host/IP des Servers (`ecommlab-new`) |
+| `ECOMMLAB_NEW_USER` | SSH-User (z. B. `root`) |
+| `ECOMMLAB_NEW_SSH_KEY` | Private SSH-Key (PEM) |
+| `ECOMMLAB_NEW_PATH` | Optional, Default `/var/www/ecommlab-relaunch` |
+
+`.env.production` auf dem Server wird **nicht** überschrieben (rsync exclude).
+
+## One-time setup (GCP)
 
 ### 1. Prerequisites
 
@@ -45,84 +62,39 @@ SMTP passwords there). Runtime secrets live in Secret Manager.
 ```bash
 gcloud auth login
 gcloud config set project ecommlab-homepage
-
-# Optional: seed secrets from your shell instead of placeholders
-export SMTP_HOST=smtp.gmail.com SMTP_PORT=587
-export SMTP_USER=… SMTP_PASS=… SMTP_FROM=…
-export CONTACT_TO=hello@ecommlab.io
-export TURNSTILE_SECRET_KEY=…
-
 scripts/gcp-provision.sh prod --write-config
 ```
-
-This enables APIs, creates Artifact Registry, Secret Manager entries, the
-`github-deployer` SA, and the WIF pool/provider. Commit the updated
-`prod.env` (`PROJECT_NUMBER` filled in).
 
 ### 3. Fill secrets (if placeholders were created)
 
 ```bash
 printf '%s' 'your-value' | gcloud secrets versions add SMTP_PASS --data-file=-
-# same for SMTP_HOST, SMTP_USER, SMTP_FROM, CONTACT_TO, TURNSTILE_SECRET_KEY
 ```
 
 ### 4. Public build-time env
 
-Edit `deploy/environments/prod.env`:
-
-- `NEXT_PUBLIC_SITE_URL`
-- `NEXT_PUBLIC_COOKIEBOT_ID`
-- `NEXT_PUBLIC_GTM_ID`
-- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
-
-These are baked into the Next.js image at build time.
+Edit `deploy/environments/prod.env` (`NEXT_PUBLIC_*`). These are baked into the
+Next.js image at build time (gcloud target only).
 
 ### 5. Deploy
 
-Push to `main` (or run **Actions → Deploy → Run workflow**). The workflow:
+**Actions → Deploy → Run workflow → Target wählen** (`ecommlab-new` oder `gcloud`).
 
-1. Resolves `prod` from the branch
-2. Authenticates via WIF (no JSON keys)
-3. Runs `gcloud builds submit --config cloudbuild.yaml`
+Kein automatischer Deploy mehr bei `git push`.
 
-Manual deploy from an authenticated shell:
+## Custom domain (GCP cutover — später)
 
-```bash
-source deploy/environments/prod.env
-gcloud builds submit --config cloudbuild.yaml \
-  --substitutions=COMMIT_SHA=$(git rev-parse --short=12 HEAD),_REGION=$REGION,_REPO=$REPO,_SERVICE=$WEB_SERVICE,_NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL,_NEXT_PUBLIC_COOKIEBOT_ID=$NEXT_PUBLIC_COOKIEBOT_ID,_NEXT_PUBLIC_GTM_ID=$NEXT_PUBLIC_GTM_ID,_NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY \
-  .
-```
+Erst wenn ihr bewusst umstellt:
 
-### 6. Custom domain (optional)
+1. Cloudflare A-Record `ecommlab.io` → `8.233.8.74`
+2. Warten bis Managed Cert `ACTIVE` ist
 
-`europe-central2` has no Cloud Run domain mappings, so use a global HTTPS LB:
-
-```bash
-scripts/gcp-domain.sh prod
-```
-
-If `DNS_PROJECT` / `DNS_ZONE` are empty (e.g. DNS in Cloudflare), the script
-prints the reserved static IP — create an A-record yourself. Managed TLS goes
-ACTIVE after DNS propagates (~15–60 min).
-
-## Local Docker smoke test
-
-```bash
-docker build \
-  --build-arg NEXT_PUBLIC_SITE_URL=http://localhost:8080 \
-  -t ecommlab-web:local .
-docker run --rm -p 8080:8080 \
-  -e SMTP_HOST=… -e TURNSTILE_SECRET_KEY=… \
-  ecommlab-web:local
-```
+Solange DNS auf ecommlab-new zeigt, bleibt die Live-Site unverändert.
 
 ## Cost notes
 
-- Cloud Run with `min-instances=0` scales to zero (no idle container cost).
-- Load balancer + reserved IP ≈ 18–25 EUR/mo when provisioned — only needed for
-  a custom domain in this region.
-- No Cloud SQL for this site.
+- Cloud Run with `min-instances=0` scales to zero.
+- Load balancer + reserved IP ≈ 18–25 EUR/mo, solange provisioniert — unabhängig vom DNS-Cutover.
 
 ## File map
 
@@ -130,8 +102,8 @@ docker run --rm -p 8080:8080 \
 | ---- | ---- |
 | `Dockerfile` | Next.js standalone image |
 | `cloudbuild.yaml` | Build, push, `gcloud run deploy` |
-| `.github/workflows/deploy.yml` | GitHub Actions entrypoint |
-| `deploy/environments/prod.env` | Non-secret env config |
+| `.github/workflows/deploy.yml` | Manual target choice: ecommlab-new \| gcloud |
+| `deploy/environments/prod.env` | Non-secret GCP env config |
 | `scripts/gcp-provision.sh` | Idempotent infra bootstrap |
 | `scripts/gcp-domain.sh` | Custom domain / ALB |
 | `.gcloudignore` | Shrinks Cloud Build upload |
