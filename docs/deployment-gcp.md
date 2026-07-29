@@ -40,12 +40,12 @@ names and WIF paths. They are **not** secret. Runtime secrets live in Secret Man
 
 ## GitHub Secrets for ecommlab-new
 
-| Secret | Beispiel |
-| ------ | -------- |
-| `ECOMMLAB_NEW_HOST` | Host/IP des Servers (`ecommlab-new`) |
-| `ECOMMLAB_NEW_USER` | SSH-User (z. B. `root`) |
-| `ECOMMLAB_NEW_SSH_KEY` | Private SSH-Key (PEM) |
-| `ECOMMLAB_NEW_PATH` | Optional, Default `/var/www/ecommlab-relaunch` |
+Identisch zu mydev.ai (siehe auch `deploy/README.md`):
+
+| Secret | Inhalt |
+| ------ | ------ |
+| `ECOMMLAB_SSH_KEY` | Privater Deploy-Schlüssel (ed25519) |
+| `ECOMMLAB_KNOWN_HOSTS` | `49.12.194.37 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyKLVpuH21pZU+Suj2X8ySIiQig9Cw4kL5T7TWeEDzj` |
 
 `.env.production` auf dem Server wird **nicht** überschrieben (rsync exclude).
 

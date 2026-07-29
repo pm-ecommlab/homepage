@@ -18,13 +18,15 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-## GCP deployment
+## Deployment
 
-Production traffic stays on **ecommlab-new** for now. GCP is ready as a
-standby target.
+Default target is **ecommlab-new** (pm2). GCP is a standby option.
 
-Deploy is **manual only**: GitHub Actions → **Deploy** → choose target
-`ecommlab-new` (default) or `gcloud`. See [docs/deployment-gcp.md](docs/deployment-gcp.md).
+- Push to `main` → deploy to ecommlab-new (same Secrets as mydev.ai)
+- Or Actions → **Deploy** → choose `ecommlab-new` / `gcloud`
+
+Secrets: `ECOMMLAB_SSH_KEY`, `ECOMMLAB_KNOWN_HOSTS` — see [deploy/README.md](deploy/README.md).
+GCP details: [docs/deployment-gcp.md](docs/deployment-gcp.md).
 
 ## Environment variables
 

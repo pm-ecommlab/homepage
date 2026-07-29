@@ -1,105 +1,121 @@
+# Deploy — zweigleisig: pm2-Server (ecommlab-new) ODER Google Cloud Run.
+#
+# Ziel-Wahl:
+#   · Push auf main         → DEFAULT_TARGET (unten), aktuell "ecommlab-new"
+#   · Actions-Tab → Run     → Ziel manuell wählbar (ecommlab-new | gcloud)
+#
+# GCP ist provisioniert, Live-Traffic bleibt auf ecommlab-new bis zum DNS-Cutover.
+# Siehe docs/deployment-gcp.md.
+#
+# Benötigte Repository-Secrets für das Ziel "ecommlab-new"
+# (identisch zu mydev.ai / pm-ecommlab):
+#   ECOMMLAB_SSH_KEY      privater Deploy-Schlüssel (ed25519, ohne Passphrase)
+#   ECOMMLAB_KNOWN_HOSTS  Host-Key des Servers (verhindert MITM):
+#                         49.12.194.37 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyKLVpuH21pZU+Suj2X8ySIiQig9Cw4kL5T7TWeEDzj
+
 name: Deploy
 
-# Manual only — pick the target in the Actions UI.
-# Live traffic stays on ecommlab-new until you deliberately cut over DNS to GCP.
 on:
   workflow_dispatch:
     inputs:
       target:
-        description: Deploy-Ziel
-        required: true
+        description: "Deploy-Ziel"
         type: choice
+        options: [ecommlab-new, gcloud]
         default: ecommlab-new
-        options:
-          - ecommlab-new
-          - gcloud
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - ".gitignore"
 
 permissions:
   contents: read
-  id-token: write # OIDC for GCP (WIF); unused for ecommlab-new
+  id-token: write # OIDC für Workload Identity Federation (nur gcloud-Ziel)
 
 concurrency:
-  group: deploy-${{ inputs.target }}-${{ github.ref_name }}
+  group: deploy-${{ github.ref_name }}
   cancel-in-progress: false
 
+env:
+  # Standard-Ziel für automatische Deploys. Auf "gcloud" umstellen, wenn
+  # Live-Traffic bewusst auf Cloud Run gehen soll.
+  DEFAULT_TARGET: ecommlab-new
+
 jobs:
-  deploy-ecommlab-new:
-    if: inputs.target == 'ecommlab-new'
+  target:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.pick.outputs.name }}
+      ready: ${{ steps.pick.outputs.ready }}
+    steps:
+      - id: pick
+        run: |
+          TARGET="${{ inputs.target || env.DEFAULT_TARGET }}"
+          READY=true
+          if [ "$TARGET" = "ecommlab-new" ] && [ -z "${{ secrets.ECOMMLAB_SSH_KEY }}" ]; then
+            READY=false
+            echo "::warning::Secret ECOMMLAB_SSH_KEY fehlt — Deploy wird übersprungen (Einrichtung: deploy/README.md)"
+          fi
+          {
+            echo "name=${TARGET}"
+            echo "ready=${READY}"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### 🎯 Deploy-Ziel: \`${TARGET}\`"
+            [ "$READY" = "false" ] && echo "> ⏭️ **Übersprungen** — Secret \`ECOMMLAB_SSH_KEY\` fehlt. Einrichtung: [deploy/README.md](../blob/main/deploy/README.md)"
+          } >> "$GITHUB_STEP_SUMMARY" || true
+
+  deploy-ecommlab:
+    needs: [target]
+    if: needs.target.outputs.name == 'ecommlab-new' && needs.target.outputs.ready == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Require SSH secrets
-        env:
-          HOST: ${{ secrets.ECOMMLAB_NEW_HOST }}
-          USER: ${{ secrets.ECOMMLAB_NEW_USER }}
-          KEY: ${{ secrets.ECOMMLAB_NEW_SSH_KEY }}
+      - name: SSH einrichten
         run: |
-          missing=0
-          [ -n "$HOST" ] || { echo "::error::Secret ECOMMLAB_NEW_HOST fehlt"; missing=1; }
-          [ -n "$USER" ] || { echo "::error::Secret ECOMMLAB_NEW_USER fehlt"; missing=1; }
-          [ -n "$KEY" ] || { echo "::error::Secret ECOMMLAB_NEW_SSH_KEY fehlt"; missing=1; }
-          exit "$missing"
-
-      - name: Deploy to ecommlab-new via SSH
-        env:
-          SSH_HOST: ${{ secrets.ECOMMLAB_NEW_HOST }}
-          SSH_USER: ${{ secrets.ECOMMLAB_NEW_USER }}
-          SSH_KEY: ${{ secrets.ECOMMLAB_NEW_SSH_KEY }}
-          REMOTE_PATH: ${{ secrets.ECOMMLAB_NEW_PATH }}
-        run: |
-          set -euo pipefail
-          REMOTE_PATH="${REMOTE_PATH:-/var/www/ecommlab-relaunch}"
-          install -m 600 /dev/null "$HOME/.ssh/ecommlab_new"
-          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/ecommlab_new"
-          SSH=(ssh -i "$HOME/.ssh/ecommlab_new" -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes)
-          RSYNC_SSH="ssh -i $HOME/.ssh/ecommlab_new -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes"
-
-          "${SSH[@]}" "${SSH_USER}@${SSH_HOST}" "mkdir -p '${REMOTE_PATH}'"
-
-          rsync -az --delete \
-            -e "$RSYNC_SSH" \
-            --exclude '.git/' \
-            --exclude 'node_modules/' \
-            --exclude '.next/' \
-            --exclude '.pids/' \
-            --exclude '.env.production' \
-            --exclude '.env.local' \
-            --exclude '.env*.local' \
-            --exclude 'docs/' \
-            ./ "${SSH_USER}@${SSH_HOST}:${REMOTE_PATH}/"
-
-          "${SSH[@]}" "${SSH_USER}@${SSH_HOST}" bash -s <<REMOTE
-          set -euo pipefail
-          cd '${REMOTE_PATH}'
-          npm ci
-          npm run build
-          if command -v pm2 >/dev/null 2>&1; then
-            pm2 restart ecommlab-prod || ./scripts/server-start.sh prod
-            pm2 status ecommlab-prod || true
-          else
-            ./scripts/server-stop.sh prod || true
-            ./scripts/server-start.sh prod
+          if [ -z "${{ secrets.ECOMMLAB_SSH_KEY }}" ]; then
+            echo "::error::Secret ECOMMLAB_SSH_KEY fehlt — siehe deploy/README.md"
+            exit 1
           fi
-          REMOTE
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.ECOMMLAB_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Host-Key aus dem Secret: keine blinde Annahme (kein StrictHostKeyChecking=no).
+          printf '%s\n' "${{ secrets.ECOMMLAB_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-          echo "### Deployed to ecommlab-new" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Host: \`${SSH_HOST}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Path: \`${REMOTE_PATH}\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: Deploy auf ecommlab-new
+        env:
+          SKIP_VERIFY: "1"
+        run: |
+          chmod +x ./scripts/deploy.sh
+          ./scripts/deploy.sh root@49.12.194.37
+
+      - name: Zusammenfassung
+        run: |
+          {
+            echo "### ✅ Deploy auf ecommlab-new"
+            echo "- App: \`ecommlab-prod\` (pm2), Port 3000"
+            echo "- Path: \`/var/www/ecommlab-relaunch\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   deploy-gcloud:
-    if: inputs.target == 'gcloud'
+    needs: [target]
+    if: needs.target.outputs.name == 'gcloud'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve environment
+      - name: Umgebung auflösen
         id: env
         run: |
           ENV=prod
           set -a; source "deploy/environments/${ENV}.env"; set +a
           if [ "${PROJECT_NUMBER}" = "CHANGEME_RUN_PROVISION" ] || [ -z "${PROJECT_NUMBER}" ]; then
-            echo "::error::${ENV}.env has no PROJECT_NUMBER — run scripts/gcp-provision.sh ${ENV} --write-config"
+            echo "::error::${ENV}.env hat keine PROJECT_NUMBER — scripts/gcp-provision.sh ${ENV} --write-config"
             exit 1
           fi
           {
@@ -125,20 +141,22 @@ jobs:
         with:
           project_id: ${{ steps.env.outputs.project_id }}
 
-      - name: Build & deploy via Cloud Build
+      - name: Build & Deploy über Cloud Build
         run: |
           gcloud builds submit \
+            --project "${{ steps.env.outputs.project_id }}" \
             --config cloudbuild.yaml \
             --substitutions=COMMIT_SHA=${GITHUB_SHA::12},_REGION=${{ steps.env.outputs.region }},_REPO=${{ steps.env.outputs.repo }},_SERVICE=${{ steps.env.outputs.web_service }},_NEXT_PUBLIC_SITE_URL=${{ steps.env.outputs.site_url }},_NEXT_PUBLIC_COOKIEBOT_ID=${{ steps.env.outputs.cookiebot_id }},_NEXT_PUBLIC_GTM_ID=${{ steps.env.outputs.gtm_id }},_NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ steps.env.outputs.turnstile_site_key }} \
             .
 
-      - name: Print service URL
+      - name: Zusammenfassung
         run: |
           URL=$(gcloud run services describe "${{ steps.env.outputs.web_service }}" \
+            --project "${{ steps.env.outputs.project_id }}" \
             --region "${{ steps.env.outputs.region }}" --format 'value(status.url)')
-          echo "Deployed: ${URL}"
-          echo "### Deployed to Google Cloud" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Environment: \`${{ steps.env.outputs.env_name }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Service: \`${{ steps.env.outputs.web_service }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- URL: ${URL}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Hinweis: DNS zeigt noch auf ecommlab-new, bis ihr bewusst umstellt." >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### ✅ Deploy auf Google Cloud Run"
+            echo "- Service: \`${{ steps.env.outputs.web_service }}\`"
+            echo "- URL: ${URL}"
+            echo "- Hinweis: DNS zeigt noch auf ecommlab-new, bis ihr bewusst umstellt."
+          } >> "$GITHUB_STEP_SUMMARY"
