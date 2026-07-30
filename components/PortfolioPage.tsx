@@ -11,6 +11,7 @@ export function PortfolioPage() {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
   const [active, setActive] = useState<(typeof portfolioTags)[number]>('Show All')
+  const baseHref = locale === 'en' ? '/projects' : '/referenzen'
 
   const filtered = useMemo(() => {
     if (active === 'Show All') return portfolioItems
@@ -36,7 +37,7 @@ export function PortfolioPage() {
           <Container>
             <div className="py-14 sm:py-18">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-300">
-                {tr(locale, 'Referenzen', 'Work')}
+                {tr(locale, 'Referenzen', 'Cases')}
               </p>
               <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">
                 {tr(locale, 'Projekte, die wir umgesetzt haben', 'Projects we delivered')}
@@ -80,7 +81,7 @@ export function PortfolioPage() {
               {filtered.map((item) => (
                 <Link
                   key={item.slug}
-                  href={`/referenzen/${item.slug}`}
+                  href={`${baseHref}/${item.slug}`}
                   className="group overflow-hidden rounded-3xl border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
                 >
                   <div className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-900">

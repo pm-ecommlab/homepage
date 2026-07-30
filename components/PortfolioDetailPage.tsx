@@ -3,10 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
-import { Container } from '../../components/Container'
-import { SiteHeader } from '../../components/SiteHeader'
-import { getCaseBySlug, getCaseNeighbors, portfolioCases } from '../../lib/portfolioCases'
-import { normalizeLocale, tr } from '../../lib/i18n'
+import { Container } from './Container'
+import { SiteHeader } from './SiteHeader'
+import { getCaseBySlug, getCaseNeighbors } from '../lib/portfolioCases'
+import { normalizeLocale, tr } from '../lib/i18n'
 
 type FlatFact = { icon: 'plus' | 'dot'; text: string; strong?: boolean }
 
@@ -72,7 +72,6 @@ function ShareBar({ title, locale }: { title: string; locale: 'de' | 'en' }) {
       )
     }
 
-    // X
     return (
       <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5">
         <path
@@ -134,11 +133,12 @@ function ShareBar({ title, locale }: { title: string; locale: 'de' | 'en' }) {
   )
 }
 
-export default function ReferenzDetail({ slug }: { slug: string }) {
+export function PortfolioDetailPage({ slug }: { slug: string }) {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
   const item = getCaseBySlug(slug)
   const { prev, next } = getCaseNeighbors(slug)
+  const basePath = locale === 'en' ? '/projects' : '/referenzen'
 
   const flatFacts = useMemo<FlatFact[]>(() => {
     const out: FlatFact[] = []
@@ -164,7 +164,7 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
   return (
     <>
       <Head>
-        <title>{item.title} – Ecommlab</title>
+        <title>{`${item.title} – Ecommlab`}</title>
         <meta
           name="description"
           content={
@@ -182,13 +182,12 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
           <section className="py-10 sm:py-14">
             <Container>
               <Link
-                href="/referenzen"
+                href={basePath}
                 className="text-sm font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               >
-                ← {tr(locale, 'Zurück zu Referenzen', 'Back to work')}
+                ← {tr(locale, 'Zurück zu Referenzen', 'Back to Projects')}
               </Link>
 
-              {/* WP-like: image left, title/intro right */}
               <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:items-start">
                 <div className="lg:col-span-4">
                   <div className="relative aspect-[3/4] overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900">
@@ -209,7 +208,6 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
                 </div>
               </div>
 
-              {/* WP-like 4 meta columns with top <hr> */}
               <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {[
                   { label: tr(locale, 'Service', 'Service'), value: item.meta.service ?? '—' },
@@ -248,7 +246,6 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
                 </div>
               ) : null}
 
-              {/* Keyfacts section closer to WP: simple list with icons, two columns */}
               <div className="mt-10">
                 <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                   {tr(locale, 'Keyfacts', 'Key facts')}
@@ -314,7 +311,7 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
                 <div className="flex flex-wrap gap-3">
                   {prev ? (
                     <Link
-                      href={`/referenzen/${prev.slug}`}
+                      href={`${basePath}/${prev.slug}`}
                       className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900"
                     >
                       ← {prev.title}
@@ -322,7 +319,7 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
                   ) : null}
                   {next ? (
                     <Link
-                      href={`/referenzen/${next.slug}`}
+                      href={`${basePath}/${next.slug}`}
                       className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900"
                     >
                       {next.title} →
@@ -337,16 +334,3 @@ export default function ReferenzDetail({ slug }: { slug: string }) {
     </>
   )
 }
-
-export function getStaticPaths({ locales }: { locales?: readonly string[] }) {
-  const locs = locales ?? ['de', 'en']
-  return {
-    paths: locs.flatMap((locale) => portfolioCases.map((p) => ({ params: { slug: p.slug }, locale }))),
-    fallback: false,
-  }
-}
-
-export function getStaticProps({ params }: { params: { slug: string } }) {
-  return { props: { slug: params.slug } }
-}
-
