@@ -13,9 +13,11 @@ module.exports = {
     {
       name: 'ecommlab-prod',
       cwd: ROOT,
-      script: './node_modules/next/dist/bin/next',
-      args: 'start -H 0.0.0.0 -p 3000',
-      interpreter: 'none',
+      // Wie der laufende Prozess vor dem Deploy: `pm2 start npm -- start -- -p 3000`.
+      // startOrReload merkt sich sonst den alten `script: npm` und mischt neue Args
+      // (ohne `--`) darüber — npm crasht dann mit "npm start [-- <args>]".
+      script: 'npm',
+      args: 'start -- -p 3000',
       exec_mode: 'fork',
       instances: 1,
       max_restarts: 10,

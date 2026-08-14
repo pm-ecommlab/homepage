@@ -73,16 +73,30 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: SSH einrichten
+        env:
+          SSH_KEY: ${{ secrets.ECOMMLAB_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.ECOMMLAB_KNOWN_HOSTS }}
         run: |
-          if [ -z "${{ secrets.ECOMMLAB_SSH_KEY }}" ]; then
+          if [ -z "$SSH_KEY" ]; then
             echo "::error::Secret ECOMMLAB_SSH_KEY fehlt — siehe deploy/README.md"
             exit 1
           fi
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          printf '%s\n' "${{ secrets.ECOMMLAB_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "${{ secrets.ECOMMLAB_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          python3 - <<'PY'
+          import os, pathlib
+          key = os.environ["SSH_KEY"].replace("\r\n", "\n").replace("\r", "\n").strip() + "\n"
+          pathlib.Path.home().joinpath(".ssh/id_ed25519").write_text(key)
+          hosts = os.environ["KNOWN_HOSTS"].replace("\r\n", "\n").replace("\r", "\n").strip() + "\n"
+          pathlib.Path.home().joinpath(".ssh/known_hosts").write_text(hosts)
+          pathlib.Path.home().joinpath(".ssh/config").write_text(
+              "Host 91.98.93.10\n  IdentityFile ~/.ssh/id_ed25519\n  IdentitiesOnly yes\n"
+          )
+          PY
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/config
           chmod 644 ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/id_ed25519 >/tmp/deploy.pub
+          echo "Deploy-Pubkey (Fingerprint):"
+          ssh-keygen -lf ~/.ssh/id_ed25519
 
       - name: Deploy auf ecommlab-cloud
         env:

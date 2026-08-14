@@ -78,11 +78,13 @@ ssh "$HOST" "test -d ${REMOTE_DIR}/.next" \
   || die "Build-Artefakt fehlt (.next)."
 ok "Build fertig"
 
-# --only ist zwingend: ohne Eingrenzung behandelt startOrReload die
-# Ecosystem-Datei als Soll-Zustand des GESAMTEN pm2-Bestands dieses Users.
-step "pm2 startOrReload (nur App: ${APP})"
-rsh "cd ${REMOTE_DIR} && pm2 startOrReload deploy/ecosystem.config.cjs --only ${APP} --update-env" \
-  || die "pm2 startOrReload fehlgeschlagen."
+# --only ist zwingend: ohne Eingrenzung behandelt start die Ecosystem-Datei
+# als Soll-Zustand des GESAMTEN pm2-Bestands dieses Users.
+# delete + start statt startOrReload: Reload merkt sich script/interpreter der
+# alten App und mischt nur Args — das hat den Prozess totgelegt.
+step "pm2 restart (nur App: ${APP})"
+rsh "cd ${REMOTE_DIR} && (pm2 delete ${APP} >/dev/null 2>&1 || true) && pm2 start deploy/ecosystem.config.cjs --only ${APP} --update-env" \
+  || die "pm2 start fehlgeschlagen."
 rsh "pm2 save >/dev/null" && ok "pm2-Prozessliste gespeichert (überlebt Reboot)"
 
 step "Healthcheck"
