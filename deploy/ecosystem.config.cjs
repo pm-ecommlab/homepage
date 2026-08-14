@@ -1,17 +1,18 @@
 /**
- * pm2-Konfiguration für die ecommlab Homepage (Deploy auf geteilten Hosts).
+ * pm2-Konfiguration für die ecommlab Homepage (CloudPanel Site-User).
  *
- * WICHTIG: Diese Datei beschreibt AUSSCHLIESSLICH die App "ecommlab-prod".
- * Alle pm2-Befehle des Deploy-Skripts referenzieren diese Config bzw. den
- * App-Namen — andere Dienste auf dem Host (mydev-ai, etoro-agent,
- * ec-healthcheck-*) werden dadurch nie angefasst.
+ * Beschreibt AUSSCHLIESSLICH die App "ecommlab-prod". Pfade werden aus
+ * dem Ort dieser Datei abgeleitet (CloudPanel: /home/ecomde/htdocs/ecommlab.de).
  */
+
+const path = require('node:path')
+const ROOT = path.resolve(__dirname, '..')
 
 module.exports = {
   apps: [
     {
       name: 'ecommlab-prod',
-      cwd: '/var/www/ecommlab-relaunch',
+      cwd: ROOT,
       script: './node_modules/next/dist/bin/next',
       args: 'start -H 0.0.0.0 -p 3000',
       interpreter: 'none',
@@ -27,4 +28,4 @@ module.exports = {
       },
     },
   ],
-};
+}

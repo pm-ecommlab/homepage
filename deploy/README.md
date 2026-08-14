@@ -1,53 +1,42 @@
-# Deploy auf einen Host mit bestehenden pm2-Diensten
+# Deploy auf CloudPanel (ecommlab-cloud)
 
-> Variante für geteilte Server ohne Docker (`ecommlab-new`) — **aktuelles
-> Standard-Ziel**. Die Google-Cloud-Variante ist eingerichtet, Live-Traffic
-> bleibt aber auf ecommlab-new: [../docs/deployment-gcp.md](../docs/deployment-gcp.md).
+> Standard-Ziel: Hetzner `91.98.93.10`, Site-User `ecomde`,
+> Pfad `/home/ecomde/htdocs/ecommlab.de`. nginx proxied `ecommlab.de` und
+> `ecommlab.io` auf `127.0.0.1:3000`. GCP bleibt Standby:
+> [../docs/deployment-gcp.md](../docs/deployment-gcp.md).
 
 ## Deploy
 
-Automatisch bei jedem Push auf `main` (GitHub Actions, Ziel `ecommlab-new`)
-oder manuell im Actions-Tab: *Deploy* → *Run workflow* → Ziel wählen.
+Automatisch bei jedem Push auf `main` (Ziel `ecommlab-cloud`)
+oder manuell: Actions → *Deploy* → *Run workflow* → Ziel wählen.
 
-Lokal, ohne GitHub:
+Lokal:
 
 ```bash
-./scripts/deploy.sh ecommlab-new
+./scripts/deploy.sh ecomde@91.98.93.10
 ```
 
 ### Repository-Secrets (identisch zu mydev.ai)
 
-Dieselben Secrets wie im Repo `mydev.ai` / dem gemeinsamen Deploy-Schlüssel
-auf `ecommlab-new`:
-
 | Secret | Inhalt |
 |---|---|
 | `ECOMMLAB_SSH_KEY` | Privater Deploy-Schlüssel (ed25519, ohne Passphrase) |
-| `ECOMMLAB_KNOWN_HOSTS` | `49.12.194.37 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyKLVpuH21pZU+Suj2X8ySIiQig9Cw4kL5T7TWeEDzj` |
+| `ECOMMLAB_KNOWN_HOSTS` | `91.98.93.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH3zZl4eHDwbpn0i3zE20hKUbaSy37ddMOeDFGC3d9hh` |
 
-Unter *Settings → Secrets and variables → Actions* eintragen (oder dieselben
-Werte aus dem mydev.ai-Repo übernehmen).
+Unter *Settings → Secrets and variables → Actions* dieselben Werte wie im
+mydev.ai-Repo eintragen. **Wichtig:** `ECOMMLAB_KNOWN_HOSTS` muss die neue IP
+`91.98.93.10` enthalten, nicht mehr `49.12.194.37`.
 
-Solange `ECOMMLAB_SSH_KEY` fehlt, überspringt der Workflow den Deploy sichtbar
-statt fehlzuschlagen.
+Solange `ECOMMLAB_SSH_KEY` fehlt, überspringt der Workflow den Deploy sichtbar.
 
-Der Workflow verifiziert den Host-Key gegen `ECOMMLAB_KNOWN_HOSTS` (kein
-`StrictHostKeyChecking=no`).
-
-Das Skript ist idempotent und macht: Voraussetzungs-Check → `rsync` (ohne
-`node_modules`, `.next`, `.git`, **ohne** `.env.production`) → `npm ci` →
-`next build` → `pm2 startOrReload deploy/ecosystem.config.cjs --only ecommlab-prod`
-→ `pm2 save` → Healthcheck. Anschließend vergleicht es die pm2-Liste vor/nach
-und weist nach, dass Fremddienste unberührt bleiben.
-
-**Nachbardienste sind tabu:** Niemals `pm2 restart all` / `pm2 delete all` auf
-diesem Host verwenden.
+Der öffentliche Schlüssel muss in `/home/ecomde/.ssh/authorized_keys` stehen
+(derselbe wie bei `/home/mydev/.ssh/authorized_keys`).
 
 ## Betrieb
 
 | Aufgabe | Befehl |
 |---|---|
-| Status | `ssh ecommlab-new "pm2 show ecommlab-prod"` |
-| Logs | `ssh ecommlab-new "pm2 logs ecommlab-prod --lines 100"` |
-| Neustart | `ssh ecommlab-new "pm2 restart ecommlab-prod"` |
-| Update | `./scripts/deploy.sh ecommlab-new` |
+| Status | `ssh ecommlab-cloud-root 'su - ecomde -c ". ~/.nvm/nvm.sh; pm2 show ecommlab-prod"'` |
+| Logs | `ssh ecommlab-cloud-root 'su - ecomde -c ". ~/.nvm/nvm.sh; pm2 logs ecommlab-prod --lines 100"'` |
+| Neustart | `ssh ecommlab-cloud-root 'su - ecomde -c ". ~/.nvm/nvm.sh; pm2 restart ecommlab-prod"'` |
+| Update | `./scripts/deploy.sh ecomde@91.98.93.10` |

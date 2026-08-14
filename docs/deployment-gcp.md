@@ -1,13 +1,13 @@
 # GCP Deployment — ecommlab Homepage
 
-**Live-Traffic bleibt vorerst auf `ecommlab-new`.** GCP (Cloud Run + optional LB)
-ist provisioniert und bereit, aber DNS zeigt noch nicht darauf.
+**Live-Traffic läuft auf `ecommlab-cloud` (91.98.93.10).** GCP (Cloud Run + optional LB)
+ist provisioniert und bereit, aber DNS zeigt nicht darauf.
 
-Deploy läuft **nur manuell** über GitHub Actions → **Deploy** → Target wählen:
+Deploy über GitHub Actions → **Deploy** → Target wählen (Push auf `main` = cloud):
 
 | Target | Ziel |
 | ------ | ---- |
-| `ecommlab-new` (Default) | SSH/rsync → `/var/www/ecommlab-relaunch`, PM2 `ecommlab-prod` |
+| `ecommlab-cloud` (Default) | SSH/rsync → `/home/ecomde/htdocs/ecommlab.de`, PM2 `ecommlab-prod` |
 | `gcloud` | Cloud Build → Artifact Registry → Cloud Run |
 
 ## Architecture (GCP, standby)
@@ -38,14 +38,14 @@ Browser ──► (optional) Global HTTPS LB ──► ecommlab-web (Cloud Run, 
 `*.env` files are the single source of truth for project id, region, service
 names and WIF paths. They are **not** secret. Runtime secrets live in Secret Manager.
 
-## GitHub Secrets for ecommlab-new
+## GitHub Secrets for ecommlab-cloud
 
 Identisch zu mydev.ai (siehe auch `deploy/README.md`):
 
 | Secret | Inhalt |
 | ------ | ------ |
 | `ECOMMLAB_SSH_KEY` | Privater Deploy-Schlüssel (ed25519) |
-| `ECOMMLAB_KNOWN_HOSTS` | `49.12.194.37 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyKLVpuH21pZU+Suj2X8ySIiQig9Cw4kL5T7TWeEDzj` |
+| `ECOMMLAB_KNOWN_HOSTS` | `91.98.93.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH3zZl4eHDwbpn0i3zE20hKUbaSy37ddMOeDFGC3d9hh` |
 
 `.env.production` auf dem Server wird **nicht** überschrieben (rsync exclude).
 
@@ -78,9 +78,8 @@ Next.js image at build time (gcloud target only).
 
 ### 5. Deploy
 
-**Actions → Deploy → Run workflow → Target wählen** (`ecommlab-new` oder `gcloud`).
-
-Kein automatischer Deploy mehr bei `git push`.
+**Actions → Deploy → Run workflow → Target wählen** (`ecommlab-cloud` oder `gcloud`).
+Push auf `main` deployed nach `ecommlab-cloud`.
 
 ## Custom domain (GCP cutover — später)
 
@@ -89,7 +88,7 @@ Erst wenn ihr bewusst umstellt:
 1. Cloudflare A-Record `ecommlab.io` → `8.233.8.74`
 2. Warten bis Managed Cert `ACTIVE` ist
 
-Solange DNS auf ecommlab-new zeigt, bleibt die Live-Site unverändert.
+Solange DNS auf ecommlab-cloud (Cloudflare → 91.98.93.10) zeigt, bleibt die Live-Site unverändert.
 
 ## Cost notes
 
@@ -102,7 +101,7 @@ Solange DNS auf ecommlab-new zeigt, bleibt die Live-Site unverändert.
 | ---- | ---- |
 | `Dockerfile` | Next.js standalone image |
 | `cloudbuild.yaml` | Build, push, `gcloud run deploy` |
-| `.github/workflows/deploy.yml` | Manual target choice: ecommlab-new \| gcloud |
+| `.github/workflows/deploy.yml` | Target choice: ecommlab-cloud \| gcloud |
 | `deploy/environments/prod.env` | Non-secret GCP env config |
 | `scripts/gcp-provision.sh` | Idempotent infra bootstrap |
 | `scripts/gcp-domain.sh` | Custom domain / ALB |

@@ -20,10 +20,10 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 
 ## Deployment
 
-Default target is **ecommlab-new** (pm2). GCP is a standby option.
+Default target is **ecommlab-cloud** (Hetzner CloudPanel, User `ecomde`). GCP is a standby option.
 
-- Push to `main` → deploy to ecommlab-new (same Secrets as mydev.ai)
-- Or Actions → **Deploy** → choose `ecommlab-new` / `gcloud`
+- Push to `main` → deploy to ecommlab-cloud (same Secrets as mydev.ai)
+- Or Actions → **Deploy** → choose `ecommlab-cloud` / `gcloud`
 
 Secrets: `ECOMMLAB_SSH_KEY`, `ECOMMLAB_KNOWN_HOSTS` — see [deploy/README.md](deploy/README.md).
 GCP details: [docs/deployment-gcp.md](docs/deployment-gcp.md).

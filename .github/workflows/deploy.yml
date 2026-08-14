@@ -1,17 +1,17 @@
-# Deploy — zweigleisig: pm2-Server (ecommlab-new) ODER Google Cloud Run.
+# Deploy — zweigleisig: pm2-Server (ecommlab-cloud) ODER Google Cloud Run.
 #
 # Ziel-Wahl:
-#   · Push auf main         → DEFAULT_TARGET (unten), aktuell "ecommlab-new"
-#   · Actions-Tab → Run     → Ziel manuell wählbar (ecommlab-new | gcloud)
+#   · Push auf main         → DEFAULT_TARGET (unten), aktuell "ecommlab-cloud"
+#   · Actions-Tab → Run     → Ziel manuell wählbar (ecommlab-cloud | gcloud)
 #
-# GCP ist provisioniert, Live-Traffic bleibt auf ecommlab-new bis zum DNS-Cutover.
-# Siehe docs/deployment-gcp.md.
+# Ziel "ecommlab-cloud": 91.98.93.10 (CloudPanel), Site unter User "ecomde"
+# (/home/ecomde/htdocs/ecommlab.de). nginx proxied ecommlab.de und ecommlab.io
+# auf 127.0.0.1:3000. Deploy läuft ALS dieser User.
 #
-# Benötigte Repository-Secrets für das Ziel "ecommlab-new"
-# (identisch zu mydev.ai / pm-ecommlab):
+# Benötigte Repository-Secrets (identisch zu mydev.ai):
 #   ECOMMLAB_SSH_KEY      privater Deploy-Schlüssel (ed25519, ohne Passphrase)
 #   ECOMMLAB_KNOWN_HOSTS  Host-Key des Servers (verhindert MITM):
-#                         49.12.194.37 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyKLVpuH21pZU+Suj2X8ySIiQig9Cw4kL5T7TWeEDzj
+#                         91.98.93.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH3zZl4eHDwbpn0i3zE20hKUbaSy37ddMOeDFGC3d9hh
 
 name: Deploy
 
@@ -21,8 +21,8 @@ on:
       target:
         description: "Deploy-Ziel"
         type: choice
-        options: [ecommlab-new, gcloud]
-        default: ecommlab-new
+        options: [ecommlab-cloud, gcloud]
+        default: ecommlab-cloud
   push:
     branches: [main]
     paths-ignore:
@@ -39,9 +39,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Standard-Ziel für automatische Deploys. Auf "gcloud" umstellen, wenn
-  # Live-Traffic bewusst auf Cloud Run gehen soll.
-  DEFAULT_TARGET: ecommlab-new
+  DEFAULT_TARGET: ecommlab-cloud
 
 jobs:
   target:
@@ -54,7 +52,7 @@ jobs:
         run: |
           TARGET="${{ inputs.target || env.DEFAULT_TARGET }}"
           READY=true
-          if [ "$TARGET" = "ecommlab-new" ] && [ -z "${{ secrets.ECOMMLAB_SSH_KEY }}" ]; then
+          if [ "$TARGET" = "ecommlab-cloud" ] && [ -z "${{ secrets.ECOMMLAB_SSH_KEY }}" ]; then
             READY=false
             echo "::warning::Secret ECOMMLAB_SSH_KEY fehlt — Deploy wird übersprungen (Einrichtung: deploy/README.md)"
           fi
@@ -69,7 +67,7 @@ jobs:
 
   deploy-ecommlab:
     needs: [target]
-    if: needs.target.outputs.name == 'ecommlab-new' && needs.target.outputs.ready == 'true'
+    if: needs.target.outputs.name == 'ecommlab-cloud' && needs.target.outputs.ready == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,23 +81,23 @@ jobs:
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "${{ secrets.ECOMMLAB_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Host-Key aus dem Secret: keine blinde Annahme (kein StrictHostKeyChecking=no).
           printf '%s\n' "${{ secrets.ECOMMLAB_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy auf ecommlab-new
+      - name: Deploy auf ecommlab-cloud
         env:
           SKIP_VERIFY: "1"
         run: |
           chmod +x ./scripts/deploy.sh
-          ./scripts/deploy.sh root@49.12.194.37
+          ./scripts/deploy.sh ecomde@91.98.93.10
 
       - name: Zusammenfassung
         run: |
           {
-            echo "### ✅ Deploy auf ecommlab-new"
-            echo "- App: \`ecommlab-prod\` (pm2), Port 3000"
-            echo "- Path: \`/var/www/ecommlab-relaunch\`"
+            echo "### ✅ Deploy auf ecommlab-cloud"
+            echo "- App: \`ecommlab-prod\` (pm2 User ecomde), Port 3000"
+            echo "- Path: \`/home/ecomde/htdocs/ecommlab.de\`"
+            echo "- Host: \`91.98.93.10\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy-gcloud:
@@ -158,5 +156,5 @@ jobs:
             echo "### ✅ Deploy auf Google Cloud Run"
             echo "- Service: \`${{ steps.env.outputs.web_service }}\`"
             echo "- URL: ${URL}"
-            echo "- Hinweis: DNS zeigt noch auf ecommlab-new, bis ihr bewusst umstellt."
+            echo "- Hinweis: DNS zeigt auf ecommlab-cloud, bis ihr bewusst auf GCP umstellt."
           } >> "$GITHUB_STEP_SUMMARY"
