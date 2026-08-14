@@ -2,7 +2,6 @@ import Document, { Head, Html, Main, NextScript } from 'next/document'
 
 export default class MyDocument extends Document {
   render() {
-    const cookiebotId = process.env.NEXT_PUBLIC_COOKIEBOT_ID
     const gtmId = process.env.NEXT_PUBLIC_GTM_ID
     const locale = this.props.__NEXT_DATA__?.locale === 'en' ? 'en' : 'de'
 
@@ -15,25 +14,14 @@ export default class MyDocument extends Document {
             defer
           />
 
-          {/* Cookiebot (Consent Management) */}
-          {cookiebotId ? (
-            <script
-              id="Cookiebot"
-              src="https://consent.cookiebot.com/uc.js"
-              data-cbid={cookiebotId}
-              data-blockingmode="auto"
-              async
-              type="text/javascript"
-            />
-          ) : null}
-
-          {/* Google Tag Manager (only after Cookiebot consent: statistics) */}
+          {/*
+            GTM immediately (not Cookiebot-blocked). Cookiebot CMP lives in GTM
+            on Consent Initialization; GA4 gtag fires on cookie_consent_update.
+          */}
           {gtmId ? (
             <>
               {/* eslint-disable-next-line @next/next/next-script-for-ga */}
               <script
-                type="text/plain"
-                data-cookieconsent="statistics"
                 dangerouslySetInnerHTML={{
                   __html: `
 window.dataLayer = window.dataLayer || [];
@@ -49,6 +37,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           ) : null}
         </Head>
         <body>
+          {gtmId ? (
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+                height="0"
+                width="0"
+                style={{ display: 'none', visibility: 'hidden' }}
+                title="Google Tag Manager"
+              />
+            </noscript>
+          ) : null}
           {/* Theme init: avoid flash before hydration */}
           <script
             dangerouslySetInnerHTML={{

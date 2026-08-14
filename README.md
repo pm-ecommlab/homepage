@@ -39,7 +39,7 @@ On GCP, runtime secrets live in Secret Manager (not in the image).
 - `NEXT_PUBLIC_COOKIEBOT_ID`: Cookiebot CBID (domain group ID)
 - `NEXT_PUBLIC_GTM_ID`: Google Tag Manager Container ID (e.g. `GTM-XXXXXXX`)
 
-GTM (and therefore GA4 via GTM) is configured to load **only after Cookiebot consent** for category **Statistics**.
+Cookiebot CMP and the GA4 Google Tag live **inside GTM** (`GTM-W6XL4K9C`). The site loads GTM immediately so Cookiebot can run on Consent Initialization; GA4 (`G-NSFVWJ2Z14`) fires on `cookie_consent_update`.
 
 ### Contact form (SMTP + Turnstile)
 
