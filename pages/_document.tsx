@@ -16,6 +16,8 @@ export default class MyDocument extends Document {
           />
 
           {consentokId ? (
+            // Consentok must run before GTM so GCM defaults exist (cs.js is not async).
+            // eslint-disable-next-line @next/next/no-sync-scripts
             <script
               src={`https://consentok.eu/cs.js?id=${encodeURIComponent(consentokId)}`}
               data-cfasync="false"
