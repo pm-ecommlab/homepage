@@ -3,7 +3,7 @@
 # Substitutions (defaults overridden by GitHub Actions):
 #   COMMIT_SHA, _REGION, _REPO, _SERVICE
 #   _NEXT_PUBLIC_SITE_URL, _NEXT_PUBLIC_CONSENTOK_ID,
-#   _NEXT_PUBLIC_GTM_ID, _NEXT_PUBLIC_TURNSTILE_SITE_KEY
+#   _NEXT_PUBLIC_GA4_MEASUREMENT_ID, _NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 substitutions:
   _REGION: europe-central2
@@ -11,7 +11,7 @@ substitutions:
   _SERVICE: ecommlab-web
   _NEXT_PUBLIC_SITE_URL: https://ecommlab.io
   _NEXT_PUBLIC_CONSENTOK_ID: ""
-  _NEXT_PUBLIC_GTM_ID: ""
+  _NEXT_PUBLIC_GA4_MEASUREMENT_ID: ""
   _NEXT_PUBLIC_TURNSTILE_SITE_KEY: ""
 
 steps:
@@ -23,7 +23,7 @@ steps:
       - "--build-arg"
       - "NEXT_PUBLIC_CONSENTOK_ID=${_NEXT_PUBLIC_CONSENTOK_ID}"
       - "--build-arg"
-      - "NEXT_PUBLIC_GTM_ID=${_NEXT_PUBLIC_GTM_ID}"
+      - "NEXT_PUBLIC_GA4_MEASUREMENT_ID=${_NEXT_PUBLIC_GA4_MEASUREMENT_ID}"
       - "--build-arg"
       - "NEXT_PUBLIC_TURNSTILE_SITE_KEY=${_NEXT_PUBLIC_TURNSTILE_SITE_KEY}"
       - "-t"

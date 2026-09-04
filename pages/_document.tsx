@@ -3,7 +3,7 @@ import Document, { Head, Html, Main, NextScript } from 'next/document'
 export default class MyDocument extends Document {
   render() {
     const consentokId = process.env.NEXT_PUBLIC_CONSENTOK_ID
-    const gtmId = process.env.NEXT_PUBLIC_GTM_ID
+    const ga4Id = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
     const locale = this.props.__NEXT_DATA__?.locale === 'en' ? 'en' : 'de'
 
     return (
@@ -16,7 +16,7 @@ export default class MyDocument extends Document {
           />
 
           {consentokId ? (
-            // Consentok must run before GTM so GCM defaults exist (cs.js is not async).
+            // Consentok must run first so GCM defaults exist before gtag.
             // eslint-disable-next-line @next/next/no-sync-scripts
             <script
               src={`https://consentok.eu/cs.js?id=${encodeURIComponent(consentokId)}`}
@@ -24,22 +24,32 @@ export default class MyDocument extends Document {
             />
           ) : null}
 
-          {/*
-            GTM after Consentok so GCM defaults exist. GA4 in GTM fires on
-            cookie_consent_update (Consentok Cookiebot-compat dataLayer).
-          */}
-          {gtmId ? (
+          {ga4Id ? (
             <>
+              {/*
+                GA4 gtag after Consentok. cs.js sets consent default (denied)
+                and updates it after the banner; gtag then respects GCM.
+                type=text/plain + data-cookieconsent: Consentok only activates
+                these scripts after statistics consent.
+              */}
               {/* eslint-disable-next-line @next/next/next-script-for-ga */}
               <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4Id)}`}
+                type="text/plain"
+                data-cookieconsent="statistics"
+                data-consentok="statistics"
+              />
+              <script
+                type="text/plain"
+                data-cookieconsent="statistics"
+                data-consentok="statistics"
                 dangerouslySetInnerHTML={{
                   __html: `
 window.dataLayer = window.dataLayer || [];
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${gtmId}');
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${ga4Id}');
 `,
                 }}
               />
@@ -47,17 +57,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           ) : null}
         </Head>
         <body>
-          {gtmId ? (
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-                height="0"
-                width="0"
-                style={{ display: 'none', visibility: 'hidden' }}
-                title="Google Tag Manager"
-              />
-            </noscript>
-          ) : null}
           {/* Theme init: avoid flash before hydration */}
           <script
             dangerouslySetInnerHTML={{
