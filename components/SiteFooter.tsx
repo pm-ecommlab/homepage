@@ -3,6 +3,12 @@ import { useRouter } from 'next/router'
 import { Container } from './Container'
 import { normalizeLocale, tr } from '../lib/i18n'
 
+declare global {
+  interface Window {
+    consentok?: { renew?: () => void }
+  }
+}
+
 export function SiteFooter() {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
@@ -32,6 +38,16 @@ export function SiteFooter() {
             >
               {tr(locale, 'Datenschutz', 'Privacy')}
             </Link>
+            <a
+              className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              href="#"
+              onClick={(event) => {
+                event.preventDefault()
+                window.consentok?.renew?.()
+              }}
+            >
+              {tr(locale, 'Cookie-Einstellungen', 'Cookie settings')}
+            </a>
             <a
               className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               href="mailto:hello@ecommlab.io"

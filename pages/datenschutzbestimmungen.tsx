@@ -21,7 +21,7 @@ function P({ children }: { children: React.ReactNode }) {
 export default function Datenschutzbestimmungen() {
   const router = useRouter()
   const locale = normalizeLocale(router.locale)
-  const cookiebotId = process.env.NEXT_PUBLIC_COOKIEBOT_ID || ''
+  const consentokId = process.env.NEXT_PUBLIC_CONSENTOK_ID || ''
 
   return (
     <>
@@ -65,21 +65,20 @@ export default function Datenschutzbestimmungen() {
                     'Here you can find the cookie declaration with details about used cookies and their categories.',
                   )}
                 </P>
-                {cookiebotId ? (
-                  <>
-                    <div id="CookieDeclaration" className="mt-4" />
+                {consentokId ? (
+                  <div className="mt-4">
                     <Script
-                      id="CookieDeclarationScript"
-                      src={`https://consent.cookiebot.com/${encodeURIComponent(cookiebotId)}/cd.js`}
+                      id="ConsentokDeclaration"
+                      src={`https://consentok.eu/cd.js?id=${encodeURIComponent(consentokId)}`}
                       strategy="afterInteractive"
                     />
-                  </>
+                  </div>
                 ) : (
                   <P>
                     {tr(
                       locale,
-                      'Cookiebot ist noch nicht konfiguriert (NEXT_PUBLIC_COOKIEBOT_ID fehlt).',
-                      'Cookiebot is not configured yet (NEXT_PUBLIC_COOKIEBOT_ID missing).',
+                      'Consentok ist noch nicht konfiguriert (NEXT_PUBLIC_CONSENTOK_ID fehlt).',
+                      'Consentok is not configured yet (NEXT_PUBLIC_CONSENTOK_ID missing).',
                     )}
                   </P>
                 )}
