@@ -138,7 +138,7 @@ jobs:
             echo "web_service=${WEB_SERVICE}"
             echo "site_url=${NEXT_PUBLIC_SITE_URL}"
             echo "consentok_id=${NEXT_PUBLIC_CONSENTOK_ID}"
-            echo "gtm_id=${NEXT_PUBLIC_GTM_ID}"
+            echo "ga4_id=${NEXT_PUBLIC_GA4_MEASUREMENT_ID}"
             echo "turnstile_site_key=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}"
             echo "wif_provider=projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL}/providers/${WIF_PROVIDER}"
             echo "deployer_sa=${DEPLOYER_SA}@${PROJECT_ID}.iam.gserviceaccount.com"
@@ -158,7 +158,7 @@ jobs:
           gcloud builds submit \
             --project "${{ steps.env.outputs.project_id }}" \
             --config cloudbuild.yaml \
-            --substitutions=COMMIT_SHA=${GITHUB_SHA::12},_REGION=${{ steps.env.outputs.region }},_REPO=${{ steps.env.outputs.repo }},_SERVICE=${{ steps.env.outputs.web_service }},_NEXT_PUBLIC_SITE_URL=${{ steps.env.outputs.site_url }},_NEXT_PUBLIC_CONSENTOK_ID=${{ steps.env.outputs.consentok_id }},_NEXT_PUBLIC_GTM_ID=${{ steps.env.outputs.gtm_id }},_NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ steps.env.outputs.turnstile_site_key }} \
+            --substitutions=COMMIT_SHA=${GITHUB_SHA::12},_REGION=${{ steps.env.outputs.region }},_REPO=${{ steps.env.outputs.repo }},_SERVICE=${{ steps.env.outputs.web_service }},_NEXT_PUBLIC_SITE_URL=${{ steps.env.outputs.site_url }},_NEXT_PUBLIC_CONSENTOK_ID=${{ steps.env.outputs.consentok_id }},_NEXT_PUBLIC_GA4_MEASUREMENT_ID=${{ steps.env.outputs.ga4_id }},_NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ steps.env.outputs.turnstile_site_key }} \
             .
 
       - name: Zusammenfassung

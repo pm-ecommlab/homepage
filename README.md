@@ -33,13 +33,13 @@ GCP details: [docs/deployment-gcp.md](docs/deployment-gcp.md).
 Create a `.env.local` (recommended for secrets) or use `.env.development` / `.env.production`.
 On GCP, runtime secrets live in Secret Manager (not in the image).
 
-### Consentok + Google Tag Manager (GTM)
+### Consentok + Google Analytics 4
 
 - `NEXT_PUBLIC_SITE_URL`: Public base URL (e.g. `https://ecommlab.io`) for canonical/hreflang links
 - `NEXT_PUBLIC_CONSENTOK_ID`: Consentok site key
-- `NEXT_PUBLIC_GTM_ID`: Google Tag Manager Container ID (e.g. `GTM-XXXXXXX`)
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`: GA4 Measurement ID (e.g. `G-XXXXXXXXXX`)
 
-Consentok loads in `_document` (before GTM). The GA4 Google Tag lives in GTM (`GTM-W6XL4K9C`, `G-NSFVWJ2Z14`) and fires on `cookie_consent_update` (Consentok Cookiebot-compatible dataLayer).
+Consentok loads first and drives Google Consent Mode. The GA4 gtag (`G-NSFVWJ2Z14`) is marked `data-cookieconsent="statistics"` so Consentok only activates it after statistics consent.
 
 ### Contact form (SMTP + Turnstile)
 
