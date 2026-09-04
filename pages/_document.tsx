@@ -9,12 +9,6 @@ export default class MyDocument extends Document {
     return (
       <Html lang={locale}>
         <Head>
-          <script
-            src="https://monitor.ecommlab.io/api/rum/script/rum_fc34c67850e5493dad8b9776e5ff42b1"
-            async
-            defer
-          />
-
           {consentokId ? (
             // Consentok must run first so GCM defaults exist before gtag.
             // eslint-disable-next-line @next/next/no-sync-scripts
@@ -23,6 +17,14 @@ export default class MyDocument extends Document {
               data-cfasync="false"
             />
           ) : null}
+
+          <script
+            type="text/plain"
+            data-consentok="statistics"
+            src="https://pingbot.eu/api/rum/script/rum_fc34c67850e5493dad8b9776e5ff42b1"
+            async
+            defer
+          />
 
           {ga4Id ? (
             <>
