@@ -33,13 +33,13 @@ GCP details: [docs/deployment-gcp.md](docs/deployment-gcp.md).
 Create a `.env.local` (recommended for secrets) or use `.env.development` / `.env.production`.
 On GCP, runtime secrets live in Secret Manager (not in the image).
 
-### Cookiebot + Google Tag Manager (GTM)
+### Consentok + Google Tag Manager (GTM)
 
-- `NEXT_PUBLIC_SITE_URL`: Public base URL (e.g. `https://new.ecommlab.io`) for canonical/hreflang links
-- `NEXT_PUBLIC_COOKIEBOT_ID`: Cookiebot CBID (domain group ID)
+- `NEXT_PUBLIC_SITE_URL`: Public base URL (e.g. `https://ecommlab.io`) for canonical/hreflang links
+- `NEXT_PUBLIC_CONSENTOK_ID`: Consentok site key
 - `NEXT_PUBLIC_GTM_ID`: Google Tag Manager Container ID (e.g. `GTM-XXXXXXX`)
 
-Cookiebot CMP and the GA4 Google Tag live **inside GTM** (`GTM-W6XL4K9C`). The site loads GTM immediately so Cookiebot can run on Consent Initialization; GA4 (`G-NSFVWJ2Z14`) fires on `cookie_consent_update`.
+Consentok loads in `_document` (before GTM). The GA4 Google Tag lives in GTM (`GTM-W6XL4K9C`, `G-NSFVWJ2Z14`) and fires on `cookie_consent_update` (Consentok Cookiebot-compatible dataLayer).
 
 ### Contact form (SMTP + Turnstile)
 

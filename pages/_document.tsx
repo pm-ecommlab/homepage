@@ -2,6 +2,7 @@ import Document, { Head, Html, Main, NextScript } from 'next/document'
 
 export default class MyDocument extends Document {
   render() {
+    const consentokId = process.env.NEXT_PUBLIC_CONSENTOK_ID
     const gtmId = process.env.NEXT_PUBLIC_GTM_ID
     const locale = this.props.__NEXT_DATA__?.locale === 'en' ? 'en' : 'de'
 
@@ -14,9 +15,16 @@ export default class MyDocument extends Document {
             defer
           />
 
+          {consentokId ? (
+            <script
+              src={`https://consentok.eu/cs.js?id=${encodeURIComponent(consentokId)}`}
+              data-cfasync="false"
+            />
+          ) : null}
+
           {/*
-            GTM immediately (not Cookiebot-blocked). Cookiebot CMP lives in GTM
-            on Consent Initialization; GA4 gtag fires on cookie_consent_update.
+            GTM after Consentok so GCM defaults exist. GA4 in GTM fires on
+            cookie_consent_update (Consentok Cookiebot-compat dataLayer).
           */}
           {gtmId ? (
             <>
